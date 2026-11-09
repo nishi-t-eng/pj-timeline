@@ -1,0 +1,724 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>商品企画部 PJ タイムライン</title><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>商品企画部 PJ タイムライン</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap">
+<style>
+/* Layout: 横軸=2026年5月〜2027年5月の月、縦軸=プロジェクト。上にガント、下に日付つきの経緯カード。 */
+:root{
+  --bg:#faf6ef; --panel:#ffffff; --fg:#1a1816; --muted:#6a6158; --line:#e5dccf; --grid:#eee7dc;
+  --now:#b8520a; --today:#1a1816;
+  --c-new:#c65a0c; --c-kit:#7b3f12; --c-air:#857000; --c-oth:#455a68; --c-gp:#2f7a5b;
+  --on-c:#ffffff; --pm:22%; --pt:10%;
+  --brand:linear-gradient(90deg,#f08a3c 0%,#f08a3c 22%,#f7e27e 100%); --logo-l:block; --logo-d:none;
+  --f-head:"Zen Kaku Gothic New","Noto Sans JP",sans-serif;
+  --f-body:"Noto Sans JP",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17140f; --panel:#201c16; --fg:#f2ece3; --muted:#a89d8f; --line:#3a332a; --grid:#2c2720;
+  --now:#f5a05a; --today:#f2ece3; --c-new:#f09a50; --c-kit:#d4a07a; --c-air:#e3c64e; --c-oth:#9db3c1; --c-gp:#6fc3a0; --on-c:#17140f; --pm:20%; --pt:14%; --logo-l:none; --logo-d:block; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17140f; --panel:#201c16; --fg:#f2ece3; --muted:#a89d8f; --line:#3a332a; --grid:#2c2720;
+  --now:#f5a05a; --today:#f2ece3; --c-new:#f09a50; --c-kit:#d4a07a; --c-air:#e3c64e; --c-oth:#9db3c1; --c-gp:#6fc3a0; --on-c:#17140f; --pm:20%; --pt:14%; --logo-l:none; --logo-d:block; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);line-height:1.65;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1{font-family:var(--f-head);font-weight:900;font-size:clamp(1.5rem,4vw,2.1rem);line-height:1.25;margin:0;text-wrap:balance}
+h2{font-family:var(--f-head);font-size:1.15rem;margin:0}
+.sub{color:var(--muted);margin:6px 0 0;font-size:.9rem}
+.hrow{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px 20px}
+.hrow h1{flex:1 1 300px}
+.logo{height:22px;width:auto;flex:none;margin-left:auto;margin-top:6px}
+.logo-l{display:var(--logo-l)}.logo-d{display:var(--logo-d)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.bar-top{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 .8rem var(--f-body);padding:6px 12px;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.chip i{width:9px;height:9px;border-radius:2px;background:var(--c,var(--muted));display:inline-block}
+.chip[aria-pressed="true"]{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
+.chip:focus-visible,summary:focus-visible{outline:2px solid var(--now);outline-offset:2px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.78rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw-done{width:22px;height:10px;border-radius:3px;background:var(--muted)}
+.sw-plan{width:22px;height:10px;border-radius:3px;border:1.5px dashed var(--muted)}
+.sw-ms{width:9px;height:9px;background:var(--muted);transform:rotate(45deg)}
+.sw-now{width:2px;height:12px;background:var(--today)}
+
+.gantt-scroll{overflow-x:auto;border:1px solid var(--line);background:var(--panel);border-radius:6px}
+.gantt{min-width:980px;position:relative}
+.g-row{display:grid;grid-template-columns:188px 1fr;border-bottom:1px solid var(--grid);min-height:38px}
+.g-row:last-child{border-bottom:0}
+.g-head{position:sticky;top:0;z-index:3;background:var(--panel);border-bottom:1px solid var(--line)}
+.g-label{position:sticky;left:0;z-index:2;background:var(--panel);padding:6px 10px 6px 12px;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;min-width:0}
+.g-label b{font-size:.8rem;font-weight:700;line-height:1.35;display:flex;gap:7px;align-items:flex-start}
+.g-label b i{flex:none;width:8px;height:8px;border-radius:2px;margin-top:.5em;background:var(--c)}
+.g-label small{font-size:.68rem;color:var(--muted);padding-left:15px}
+.g-track{position:relative;min-height:38px;
+  background-image:linear-gradient(to right,var(--grid) 1px,transparent 1px);background-size:calc(100%/var(--n,14)) 100%}
+.g-months{display:grid;grid-template-columns:repeat(var(--n,14),1fr);font:500 .68rem var(--f-mono);color:var(--muted)}
+.g-months div{padding:6px 0 6px 5px;border-left:1px solid var(--grid)}
+.g-months div.y{color:var(--fg)}
+.bar{position:absolute;top:9px;height:20px;border-radius:3px;font-size:.66rem;line-height:20px;padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--c);color:var(--on-c);font-weight:500}
+.bar.plan{background:color-mix(in srgb,var(--c) 16%,var(--panel));border:1.5px dashed var(--c);line-height:17px;color:var(--fg)}
+.bar.pp{background:linear-gradient(to right,color-mix(in srgb,var(--c) var(--pt),var(--panel)) var(--f),var(--c) var(--f))}
+.bar.plan.pp{background:linear-gradient(to right,color-mix(in srgb,var(--c) 6%,var(--panel)) var(--f),color-mix(in srgb,var(--c) 16%,var(--panel)) var(--f))}
+.bar.past{background:color-mix(in srgb,var(--c) var(--pt),var(--panel));color:var(--fg)}
+.bar.plan.past{background:color-mix(in srgb,var(--c) 6%,var(--panel));border:1.5px dashed color-mix(in srgb,var(--c) 45%,var(--panel));color:var(--fg)}
+.bar.pp{color:var(--fg)}
+.bar.pp:not(.plan) .lb{background:color-mix(in srgb,var(--panel) 82%,transparent);padding:1px 4px;border-radius:2px}
+.ms.past{background:color-mix(in srgb,var(--c) var(--pm),var(--panel))}
+.ms.plan.past{background:var(--panel);border-color:color-mix(in srgb,var(--c) 45%,var(--panel))}
+.mlab.past{opacity:.35}
+.ev li.past,.sr.past{opacity:.4}
+.ev li.past:hover,.sr.past:hover,.ev li.past:focus-within,.sr.past:focus-within{opacity:1}
+.ms{position:absolute;top:13px;width:11px;height:11px;margin-left:-5.5px;transform:rotate(45deg);background:var(--c);border:2px solid var(--panel);box-sizing:content-box}
+.ms.plan{background:var(--panel);border:2px solid var(--c)}
+.nowline{position:absolute;top:0;bottom:0;width:0;border-left:2px solid var(--today);z-index:1;pointer-events:none}
+.nowtag{position:absolute;top:1px;transform:translateX(-50%);background:var(--today);color:var(--bg);font:500 .62rem var(--f-mono);padding:1px 6px;border-radius:3px;z-index:4}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;min-width:0}
+.card summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.card summary::-webkit-details-marker{display:none}
+.card .t{display:flex;gap:9px;align-items:baseline;justify-content:space-between}
+.card .t strong{font-family:var(--f-head);font-size:1rem;line-height:1.4}
+.card .t span{font:.7rem var(--f-mono);color:var(--muted);white-space:nowrap}
+.card .st{font-size:.82rem;color:var(--muted);margin:0}
+.tag{display:inline-block;font:500 .66rem var(--f-body);padding:1px 8px;border-radius:999px;color:var(--on-c);background:var(--c);width:fit-content}
+.card summary::after{content:"経緯を開く";font-size:.72rem;color:var(--c);font-weight:500;margin-top:4px}
+.card[open] summary::after{content:"閉じる"}
+.ev{margin:0;padding:2px 16px 16px;list-style:none;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--grid)}
+.ev li{display:grid;grid-template-columns:140px 1fr;gap:10px;font-size:.82rem;padding-top:8px}
+.di{font:.72rem var(--f-mono);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:3px 5px;width:100%;min-width:0;box-sizing:border-box}
+.di:disabled{color:var(--muted);background:transparent;border-color:transparent;padding-left:0}
+.di:focus-visible,.rs:focus-visible{outline:2px solid var(--now);outline-offset:1px}
+.chg .di{border-color:var(--now)}
+.dwrap{display:flex;gap:4px;align-items:center;min-width:0}
+.rs{font:500 .68rem var(--f-body);color:var(--now);background:none;border:0;cursor:pointer;padding:2px 4px;white-space:nowrap}
+.sched{padding:2px 16px 12px;border-top:1px solid var(--grid);display:flex;flex-direction:column;gap:6px}
+.sched h4{margin:8px 0 2px;font:700 .72rem var(--f-body);color:var(--muted)}
+.sr{display:grid;grid-template-columns:minmax(0,1fr);gap:3px;font-size:.78rem}
+.sr .sl{min-width:0}
+.sr .sd{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.sr .sd .di{width:132px}
+.sr.chg .di{border-color:var(--now)}
+.sync{font-size:.78rem;color:var(--muted);margin:0}
+.ac{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.bt{font:500 .72rem var(--f-body);border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:4px;padding:2px 8px;cursor:pointer}
+.bt.pr{background:var(--c);color:var(--on-c);border-color:var(--c)}
+.bt.dg{color:var(--now)}
+.bt:focus-visible,.ta:focus-visible{outline:2px solid var(--now);outline-offset:1px}
+.ta{width:100%;box-sizing:border-box;font:.82rem var(--f-body);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:6px;resize:vertical}
+.g-row.done .g-label b,.g-row.done .g-label small,.g-row.done .g-track{opacity:.5}
+.card.done .st,.card.done .t strong{opacity:.6}
+.wk{padding:10px 16px 12px;border-top:1px solid var(--grid);display:flex;flex-direction:column;gap:4px}
+.wk h4{margin:6px 0 2px;font:700 .72rem var(--f-body);color:var(--muted)}
+.wk ul{margin:0;padding-left:1.15em;font-size:.82rem;display:flex;flex-direction:column;gap:3px}
+.wk ul.nx{list-style:none;padding:0;gap:5px}
+.wk ul.nx li{display:grid;grid-template-columns:84px 1fr;gap:8px;align-items:baseline}
+.wk .ch{font:500 .7rem var(--f-mono);text-align:center;border-radius:4px;padding:1px 4px;background:var(--bg);border:1px solid var(--line);white-space:nowrap}
+.wk .ch.soon{background:var(--c);color:var(--on-c);border-color:var(--c)}
+.wk li.pst{opacity:.5}
+.wk details{font-size:.78rem;color:var(--muted)}
+.nw{font:700 .62rem var(--f-body);color:var(--c);border:1px solid var(--c);border-radius:999px;padding:0 6px;margin-left:4px;white-space:nowrap}
+.addbox{padding:4px 16px 14px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.addbox .di{width:140px}
+.delbox{padding:0 16px 12px;font-size:.78rem;color:var(--muted)}
+.delbox summary{cursor:pointer}
+.delbox li{display:flex;gap:8px;align-items:baseline;margin-top:4px}
+.ev li.future div::before{content:"予定 ";font-size:.68rem;font-weight:700;color:var(--now)}
+.mt{width:100%;min-width:640px;border-collapse:collapse;font-size:.84rem}
+.mt th,.mt td{text-align:left;vertical-align:top;padding:10px 14px;border-bottom:1px solid var(--grid)}
+.mt th{font:700 .74rem var(--f-body);color:var(--muted);background:var(--bg)}
+.mt td:first-child{font:500 .82rem var(--f-mono);white-space:nowrap;color:var(--c-kit)}
+.mt tr:last-child td{border-bottom:0}
+.notes{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px 18px}
+.notes ul{margin:8px 0 0;padding-left:1.2em;font-size:.84rem;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+@media (max-width:560px){.g-row{grid-template-columns:132px 1fr}.ev li{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+  <header class="bar-top">
+    <div style="width:100%">
+      <div class="hrow">
+        <h1>商品企画部 PJ タイムライン</h1>
+        <img class="logo logo-l" src="data:image/png;base64,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" width="480" height="66" alt="G HOUSE">
+        <img class="logo logo-d" src="data:image/png;base64,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" width="480" height="66" alt="" aria-hidden="true">
+      </div>
+      <p class="sub">定例MTG資料（2026年5月1日〜11月5日の27回分）から作成。実線は実施済み、破線は予定。太い縦線は今日で、過ぎた部分は同じ色で薄く表示します。内容は資料の最新回（11/5）と、11月度報告（11/6時点）までです。</p>
+    </div>
+  </header>
+
+  <section style="display:flex;flex-direction:column;gap:12px" aria-label="全体タイムライン">
+    <div class="bar-top">
+      <div class="chips" id="chips"></div>
+      <div class="legend">
+        <span><i class="sw-done"></i>実施済み</span><span><i class="sw-plan"></i>予定</span>
+        <span><i class="sw-ms"></i>節目</span><span><i class="sw-now"></i>今日</span><span><i class="sw-done" style="background:color-mix(in srgb,var(--muted) 45%,var(--panel))"></i>過去</span>
+      </div>
+    </div>
+    <div class="gantt-scroll"><div class="gantt" id="gantt"></div></div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:12px">
+    <h2>プロジェクト別の経緯</h2>
+    <p class="sync" id="sync">カードを開くと、日程や経緯を変更できます。</p>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:12px" aria-label="キッチン月別">
+    <h2>オリジナルキッチン 月ごとの予定</h2>
+    <p class="sub" style="margin:-6px 0 0">10/30の定例MTGで社長から依頼のあった、月単位の見通しです。日程は10/23資料の開発スケジュール（暫定）と、10/30のMTGで決まった予定にもとづきます。</p>
+    <div class="gantt-scroll"><table class="mt">
+      <thead><tr><th>月</th><th>オリジナルキッチン本体</th><th>周辺（永大産業 UTILIA など）</th></tr></thead>
+      <tbody>
+        <tr><td>11月</td><td>11/4 第一創を訪問、11/6 デザイン最終確認とスケジュール再構築、11/10 豊中オフィスのオーナーと面談、11/11 東京でサンプル確認、11/25 アイカ工業を見学。詳細図面、見積・交渉、材料発注、部分試作。</td><td>UTILIAの新規格をリリース。乾燥機（Panasonic）は、安全確認のあと導入日を決定。スタイルブックへ順次反映。</td></tr>
+        <tr><td>12月</td><td>試作品の確認、施工方法と品質の確認。展示用キッチンの製作準備。ソフト仕様を凍結（月末）。</td><td>新LACIE・SMARTを12/11にリリース予定。</td></tr>
+        <tr><td>2027年1月</td><td>第2試作・量産試作。ハード仕様を凍結。展示用キッチンを製作・設置（月末）。</td><td></td></tr>
+        <tr><td>2月</td><td>商品撮影、カタログ・販促資料の制作（月末完成）。発売決裁（GO/NO-GO）。</td><td>G-residence リリース目標。</td></tr>
+        <tr><td>3月</td><td>営業・IC・工事への説明と研修、受発注・施工フローの整備、最終発注テスト。</td><td></td></tr>
+        <tr><td>4〜6月</td><td>4/1にリリース。社長の方針では、最初の3ヶ月はグラフテクト等の他社製品も選べる猶予期間とし、反応を見て微調整。ルームツアーやモデルハウスで周知。</td><td>4月に換気システムの商品化可否を判断。</td></tr>
+      </tbody></table></div>
+    <p class="sub" style="margin:0">海外部材の調達には3〜4ヶ月かかる可能性があります。11/6に顧問とのWEB会議で、スケジュールを確認する予定です。</p>
+  </section>
+
+  <section class="notes">
+    <h2>資料の読み取りで注意した点</h2>
+    <ul>
+      <li>「NoiseLess」は5/21に決まった商品名で、10/16以降の資料では「G-residence（旧NoiseLess）」として再構築中です。</li>
+      <li>NoiseLessのHP公開日は7/1と7/8の記載が併存しており、最新の資料では公開済みです。</li>
+      <li>キッチン内製化の目標は、7月時点が「2027年8月1日に完全導入」、10月時点が「2027年4月1日リリース」です。ガントは10月時点の計画で描いています。</li>
+      <li>付加断熱（断熱等級7）の節は2025年からの履歴が残っていて、日付に年がありません。時系列から外し、原価改善の欄に要点だけ載せています。</li>
+      <li>月だけの予定（例: 11月、2027年1月）は、その月全体を破線で示しています。</li>
+      <li>新LACIEのリリース日は12/11（SMARTとあわせて）です。11月度報告と10/19の経営会議で一致しています。10/30資料の「2027年1月」は古い記載です。</li>
+      <li>乾燥機の正式な導入日は、11月度報告では未定です。以前入れていた「11/20発売」の節目は外しました。</li>
+      <li>家具・家電などの粗利目標は、11月度報告の「粗利+30万円/棟」に合わせました。10/19の経営会議の「10万→30万」とは別の指標の可能性があります。</li>
+      <li>G-residenceの次の会議は、議事録から私が算出した11/5ではなく、11月度報告の11/12に直しました。</li>
+      <li>G-residenceのリリース日は2027年2月12日です（ユーザー指定）。経営会議の記載にある11/12告知チラシ・11/13リリースは、本リリースとは別の告知の予定とみられますが、資料からは確定できません。</li>
+      <li>SMARTは、営業会議が「12月中頃」、SMART打合せが「11月中旬に第1段階の発信」と記載しています。</li>
+      <li>10月分の全社Geminiメモ（経営会議、営業会議、各種打合せ）から、商品企画部に関わる内容を追記しました。音声認識の誤変換があるため、固有名詞は資料の表記に合わせています。</li>
+      <li>11/2〜11/6の全社メモ（経営会議、営業会議、LIFEX MTG、G-residence MTG、OEMキッチンショートMTG、IC MT、リーダーMTG）からも、商品企画部に関わる内容を追記しました。</li>
+      <li>G-residenceの次回MTGは、G-residence MTGのメモでは11/12（木）16:00、経営会議のメモでは「12月5日木曜日」とあります。12/5は土曜のため誤変換とみて、11/12にしています。</li>
+      <li>SMARTの価格案は11/5の営業会議で出た段階で、価格・仕様は意見を集めている途中です。経営会議のメモにある「25,600円程度」は金額が不自然なため載せていません。外壁メーカーの「経由」の表記も要確認です。</li>
+      <li>OEMキッチンショートMTGのメモは吉本産業の訪問を6日としていますが、文字起こしでは会議日（11/3）の「明後日」と読めるため、11/5にしています。試作の打合せ先（11/4）は、音声認識で表記が崩れていて特定できません。</li>
+      <li>全館空調を体感するお客様邸は、営業会議のメモ内で所在地の表記が揺れているため、所在地は載せていません。</li>
+      <li>建築資材の共同購入は、10/26のメモでは社内運用が2/1・対外案内が2月中旬、11/2の経営会議では11/17リリースと記載が異なります。別の範囲の話の可能性があります。</li>
+      <li>乾燥機の「11/15目安」は、LIFE Xのスタイルブックに載せたいという藤本さんの意向です。乾燥機の正式な導入日は未定のままです。</li>
+    </ul>
+  </section>
+</div>
+
+<script>const __OV={"cjco5e1": {"d": "2026-11-06", "done": true, "p": "hvac"}, "clxtg9r": {"d": "2026-11-06", "done": true, "p": "epc"}, "n1145r7b": {"name": "スタイルブック粗利改善　粗利＋30万/棟", "p": "sb"}, "n19kmpr": {"name": "オリジナル換気・全館空調システム（OEM・内製化）", "p": "vent"}, "n1iik3zq": {"name": "商品企画部 目標", "p": "corp"}, "n1v55l6o": {"name": "新LACIE（ラシエ）", "p": "lacie"}, "n4l8n6f": {"name": "G-residence（NoiseLess）", "p": "ng"}, "nly0tru": null, "ol0v7ih": {"own": "商品企画部", "p": "corp"}, "x60vm31": {"del": true, "p": "part"}, "xl0uxt6": {"del": true, "p": "corp"}};window.claude={use:async n=>n==='db'?{doc:p=>({onSnapshot:ok=>setTimeout(()=>ok(p.endsWith('added')?{exists:false,data:()=>({})}:{exists:true,data:()=>__OV}),0),update:async()=>{},set:async()=>{}})}:{can:async()=>false}};</script>
+<script>
+const START0=new Date('2026-05-01'), END=new Date('2027-07-01'), NOW='2026-11-05', NOTES_DATE='2026-10-30', COMPANY_NOTES_DATE='2026-11-06';
+let START=START0, span=END-START0, showAll=false, NM=14;
+function cutoff(){const t=new Date(TODAY);t.setUTCMonth(t.getUTCMonth()-2);return toISO(t)}
+function setRange(){if(showAll){START=START0}else{const t=new Date(cutoff());const m=new Date(Date.UTC(t.getUTCFullYear(),t.getUTCMonth(),1));START=m>START0?m:START0}span=END-START}
+const pct=d=>((new Date(d)-START)/span*100);
+const CATS={new:'新商品',kit:'キッチン',air:'空調・エネルギー',oth:'契約率アップ',gp:'粗利UP'};
+// bars: [from,to,label,state]  state: d=実施済み p=予定 / ms: [date,label,state]
+const P=[
+{id:'oem',cat:'kit',name:'オリジナルキッチン（OEM・内製化）',own:'山根',
+  status:'2027年4月1日のリリースを目標に、10/29の顧問打合せで主要仕様を絞り込み中。11/6に顧問とWEB会議を行い、スケジュールを確認する。下の日程は10/23資料の暫定計画。試作室は豊中オフィス1階に設置が社内決定で、11/10にオーナーと面談する予定。',
+ wk:[{d:'2026-11-09',r:'11/2〜11/9',wins:['11/6に顧問（浅谷・益子）と開発工程を確認。次の工程に進む条件として、代表が承認した商品企画書が必須になった','試作3セット（アイランド型・カップボードを含む）を2/15頃に搬入する日程で合意。詳細設計は12/20頃までに完了させる','カウンターの試作素材はクレアサーフェイスに決定。ウルトラサーフェイスは見送り','製造を始めるため、定款に「住宅設備機器の製造」の追加が必要。倉庫は委託でスモールスタートを検討'],next:[['2026-11-10','11/10','豊中オフィスのオーナーへ、試作室の使用許可をお願いに伺う（13時）'],['2026-11-11','11/11','東京でエガー扉面・シゲルシンクの現物を確認'],['2026-11-25','11/25','アイカ工業の工場見学（調整中）'],['2026-12-20','12/20頃','詳細設計を完了'],['2027-02-15','27/2/15頃','試作3セットを試作室へ搬入']]}],
+ bars:[['2026-06-26','2026-10-30','調査・ヒアリング・企画','d'],['2026-11-01','2026-12-01','第1試作','p'],['2026-12-01','2027-01-01','試作評価','p'],['2027-01-01','2027-02-01','第2試作','p'],['2027-02-01','2027-03-01','量産体制','p'],['2027-03-01','2027-04-01','販売準備','p'],['2027-04-01','2027-07-01','プレリリース（他社製品も選択可）','p']],
+ ms:[['2027-04-01','リリース','p']],
+ ev:[['2026-06-26','基本方針を決定。天板・キャビネット・扉は海外調達、設備機器は直接取引、自社組立と大工施工。'],
+ ['2026-07-03','プロジェクト決定。商品企画部と現場監督の2名体制に宮内さんが参加。'],
+ ['2026-07-24','富士工業は直接取引不可。クリナップZRSを代替候補に。目標原価は合計85万円。'],
+ ['2026-07-31','萩原顧問を含むミーティング。'],
+ ['2026-08-06','グラフテクト藤岡工場、永大産業、関東住設産業を視察（報告書は8/10）。'],
+ ['2026-09-01','浅谷・益子顧問の会議。「グラフテクトの何を超えるのか」を明確化する指摘。'],
+ ['2026-09-04','顧客ヒアリング開始。10/3までに10件完了（対象は約30組）。'],
+ ['2026-09-15','大日程計画（案）と詳細日程（案）を作成。'],
+ ['2026-10-03','前期174棟を分析。Ⅱ型とペニンシュラ型で89.6%。'],
+ ['2026-10-23','4/1リリースを整理。開発スケジュール（暫定）を初掲載。'],
+ ['2026-10-27','デザイン案とリリースまでのフローを代表・萩原顧問へ共有。'],
+ ['2026-10-29','顧問打合せで主要仕様を絞り込み。'],
+ ['2026-11-04','第一創を訪問。施工説明書・取扱説明書・図面制作の依頼先として確認（山根）。'],
+ ['2026-11-06','16:00 浅谷・益子顧問とWEB会議。スケジュールと役割分担を確認。事前に3名で30分のショートMTG。山根が工程表を作成。'],
+ ['2026-11-11','東京でエガー扉面・シゲルシンクを確認（山根・西）。'],
+ ['2026-11-25','アイカ工業の工場を見学し加工技術を確認（山根・西・村上）。'],
+ ['2026-10-31','デザイン方向性と主要仕様を確定（DR1 基本設計レビュー）。',['b','調査・ヒアリング・企画','to',-1]],
+ ['2026-11-30','第1回試作。工事部も参加して施工性を確認。',['b','第1試作','to',1]],
+ ['2026-12-31','試作評価。ソフト仕様凍結（DR3）。',['b','試作評価','to',1]],
+ ['2027-01-31','第2試作・量産試作。ハード仕様凍結（DR4）。展示キッチンを製作・設置。',['b','第2試作','to',1]],
+ ['2027-02-28','発売決裁（GO/NO-GO）。受発注・施工フロー、保証体制を整備。',['b','量産体制','to',1]],
+ ['2027-03-31','営業・IC・工事の研修、最終発注テスト。',['b','販売準備','to',1]],
+ ['2027-04-01','オリジナルキッチン リリース。4〜6月の3ヶ月はグラフテクト等の他社製品も選べる猶予期間とし、反応を見て微調整（10/30 社長より）。',['m','リリース','d',0]],
+ ['2026-10-01','キッチン・洗面のOEM実施は決定済みとして、標準化を進めることで合意（スタイルブックMTG）。'],
+ ['2026-10-07','標準仕様の方向。天板はハイマックス、耐震金物はブルム製に決定。BLANCOシンクは原価3〜4万円増でハーフェレ経由で価格交渉中（キッチン洗面台MT）。'],
+ ['2026-10-14','エガー低圧メラミンなど海外調達は船便約3ヶ月、最低4ヶ月のリードタイムが必要（週次オリジナル商品MTG）。ハーフェレのBLANCOシンクは65掛け。'],
+ ['2026-10-19','OEM・FC外販計画（50〜最大1000棟）は保留。まず自社内展開を優先（経営会議）。'],
+ ['2026-10-26','本社1階を試作スペースに使う方針。社長は「2月・3月に本社・豊中で先行入れ替えて検証し、その後判断」と指示（経営会議）。'],
+ ['2026-10-27','萩原顧問MT。10月末にデザイン確定、2027年1月に展示用製作の日程を共有。'],
+ ['2026-11-06','試作室を豊中オフィス1階に設置することが社内決定（11月度報告）。'],
+ ['2026-11-06','扉のみ浮かせるセミフロートとR形状で、デザインの方向性を決定。年間500台規模を前提に、天板・シンク・面材の候補を比較中（11月度報告）。'],
+ ['2026-11-10','豊中オフィスのオーナーへ、試作室の使用許可をいただきに伺う（11月度報告）。'],['2026-11-03','山根が開発工程表（バーチャート）を作成し、趙さんと共有。必ず通過するA区分と、通過しなくても進められるB区分に整理。11/6の打合せでは日付を入れずに共有し、順次決めていく（OEMショートMTG）。'],
+ ['2026-11-04','試作の打合せ（シンクと天板を幅600mm程度で組み合わせる試作の進め方を確認）。訪問先の表記は音声認識のため不確か（山根）。'],
+ ['2026-11-05','定例報告（山根）。2027年度の着工計画は約320棟、翌年度は約480棟を想定。自社物件では既存メーカーからオリジナルキッチンへの一本化を目指す。FC・BtoBへの外販は未決定。'],
+ ['2026-11-05','益子顧問と吉本産業を訪問予定。ウルトラサーフェス天板とBLANCOシンクの試作を相談する。主力はHI-MACS天板とシゲルのシンクの想定で、試作段階ではウルトラサーフェスも活用できる（OEMショートMTG）。'],
+ ['2026-11-10','豊中オフィスのオーナーと面談し、1階の試作スペースの方向性について合意を取る。事前に宮内さん・趙さん・山根の3名で30分のショートMTGを行い、施工内容を確認する（OEMショートMTG）。'],
+ ['2026-11-05','仕様は、天板がHI-MACS、扉材がEGGER等の低圧メラミン、シンクはBLANCOと国内ステンレスを比較。今後の整理項目に、展示キッチンの入れ替え、キッチン単体の原価・利益管理、調達・物流、大工の施工体制を追加（事前資料、山根）。']]},
+{id:'utilia',cat:'kit',name:'永大産業オリジナルキッチン UTILIA',own:'山根',
+ status:'7/1に新価格で展開済み。9/3から施工開始。11月リリースの新規格を永大と調整中。10/22の現物確認の結果、発売時は追加の配線穴・下穴を設けない方向。',
+ bars:[['2026-04-23','2026-07-01','価格交渉・新ラインナップ','d'],['2026-10-16','2026-11-30','新規格（11月リリース）','p']],
+ ms:[['2026-07-01','新価格','d'],['2026-09-03','施工開始','d']],
+ ev:[['2026-04-23','新ラインナップを設計ICミーティングで共有。4/24に新OPカタログを社内リリース。'],
+ ['2026-06-05','永大が10%値上げを提示（Ⅱ型125万→137.5万円）。'],
+ ['2026-06-12','レンジフードを下位モデルにして値上げ幅を圧縮。値上げは受け入れられないと伝達。'],
+ ['2026-06-19','最終調整案。ペニンシュラ120万、アイランド122万、Ⅱ型124万円。OPは一律18.3%UP。'],
+ ['2026-07-01','新価格・新レイアウトで展開開始。'],
+ ['2026-08-28','BOSCH食洗機W600をハーフェレジャパン仕入に切替。23万→21万円。'],
+ ['2026-09-03','注文住宅で施工開始（八尾市）。永大側の墨出しミスは永大が全件再チェックし追加費用も負担。'],
+ ['2026-10-16','11月リリース規格の内容を確定。手掛け仕様、単色4色展開。'],
+ ['2026-10-22','堺工場で現物確認。'],
+ ['2026-10-23','掛率は33掛けから28.3掛けで着地。'],
+ ['2026-11-30','新規格 リリース。',['b','新規格（11月リリース）','to',0]],
+ ['2026-11-10','16:00 WIC収納などの施工面を永大・工事部と打合せ。クロス前に大工で施工する運用（永大メモ）。'],['2026-11-05','10/22の現物確認の結果を整理（定例報告）。配線穴は加工可能だがキャップが天板厚と合わず約6mm突出するため、発売時は追加の配線穴・下穴を設けず、需要を見て対応を検討。背面は上下各5mmのクリアランスが必要。後付けの照明は標準に組み込まない。現場で組み立てて壁へ固定し、クロス前に大工が取り付ける。'],
+ ['2026-11-05','ヘアケアボックスは組立済みで納品。壁厚130mmへの納まり、2口コンセントの専用回路の要否、価格（定価・仕入・税区分）は、正式な見積と施工説明書で確認する（定例報告）。']]},
+{id:'vent',cat:'air',name:'オリジナル換気システム',own:'西',
+ status:'豊中モデルで室間温度差が約2.5℃改善。風が直接当たる課題があり、設置位置と吹出方向を見直し中。冬季測定は12/7頃に再開予定。',
+ wk:[{d:'2026-11-09',r:'11/2〜11/9',wins:['夏季測定は10/23で区切り。豊中モデルの実測で、室間の温度差が約2〜2.5℃緩和した（暫定値）','ファンの直風が寒く感じる課題があり、配置・風向を再検討中','空調と24時間換気を分ける案を協議（10/27）。機器原価は現行約107万円から50万円程度を目指す','冬季測定は12/7前後に再開する方針を確認（10/30）'],next:[['2026-11-30','11月中','既存の測定結果を整理し、循環経路と機器配置の改善案を作成'],['2026-12-07','12/7前後','冬季測定を再開'],['2027-03-31','27/3末','総合検証を完了。4月に商品化を判断']]}],
+ bars:[['2026-08-06','2026-09-10','CFD・機器準備','d'],['2026-09-10','2026-10-23','豊中で実測','d'],['2026-12-07','2027-03-31','冬季測定・総合検証','p']],
+ ms:[['2027-04-01','商品化判断','p']],
+ ev:[['2026-08-06','太田顧問とミーティング。豊中モデルで部屋間ファンのCFDシミュレーションを開始。'],
+ ['2026-08-25','SPAプロジェクトMTG。稲MH2棟、豊中MH、旭区MHで空調経路を確認。'],
+ ['2026-08-31','風速計を設置。'],
+ ['2026-09-10','豊中MHに三菱エアパス用ファンを設置し、データ計測を開始。'],
+ ['2026-09-29','実測データ収集の期限。調査結果報告書を作成。'],
+ ['2026-10-23','室間温度差が約2.5℃改善と報告。機器を撤収。'],
+ ['2026-10-27','萩原・太田顧問MTG。薄型循環ファンや送風経路を区切る案を協議。'],
+ ['2026-12-07','冬季測定を再開。',['b','冬季測定・総合検証','from',0]],
+ ['2027-03-31','総合検証を完了。',['b','冬季測定・総合検証','to',0]],
+ ['2027-04-01','実測・原価・施工性・保証で商品化可否を判断。',['m','商品化判断','d',0]],
+ ['2026-10-16','豊中の機器を10/23に回収して測定を一旦終了。12月7日前後の冬から再測定（商品企画部MTG）。'],
+ ['2026-10-23','太田顧問MTG。将来は換気扇もオリジナルで製作し、2027年4月頃にリリースまたは方向性を決定。パスカルダンパー等の給気機構を全棟標準化する案（お客様負担3万円未満を想定）は社長に確認。'],
+ ['2026-10-27','萩原顧問MT。現行Panasonic全館空調は本体約107万円、顧客向けオプション約180万円。目標は機器原価約50万円（見積は未確認）。壁内に収まるオリジナルクロスフローファン、台湾での調達・視察も検討。']]},
+{id:'hvac',cat:'air',name:'全館空調・エアコンラインナップ',own:'西',
+ status:'設計ルール変更で5月契約から切替済み。エアコンは三菱Zシリーズとダイキンの2機種に決定。11/12にお客様邸で体感・保証説明、12/24にPanasonic春日工場の見学を計画中。',
+ bars:[['2026-05-01','2026-06-01','5月契約から切替','d']],
+ ms:[['2026-07-24','成功事例共有','d'],['2026-09-03','エアコン2機種決定','d']],
+ ev:[['2026-03-13','旭区モデルで勉強会。旭区・豊中・長岡京モデルは導入困難と判断。'],
+ ['2026-03-26','設計ルール変更。階高を1階2980→3030mm、2階2850→2950mm、スリーブ高さを32mm下げる。'],
+ ['2026-05-01','5月契約から切替。新商品に標準採用。'],
+ ['2026-07-16','営業勉強会（全館空調の訴求方法）。'],
+ ['2026-07-24','成功事例を共有。課題は体感できるモデルハウスがないこと、営業の理解差、セミナー資料。'],
+ ['2026-08-06','エアコン候補3機種で見積を比較（8/17付）。'],
+ ['2026-09-03','再熱除湿機能のある三菱Zシリーズとダイキン AXシリーズの2機種に決定。'],
+ ['2026-10-01','LIFE・LIFE+用の全館空調価格を120万円から160万円に変更することに営業部が合意。ラシエ・ノイズレスはPanasonic全館空調ライトが標準（営業会議）。'],
+ ['2026-10-07','Panasonic事前MTG。室外機は原則1階設置、下屋置きは避ける。間取り確定図への室外機位置の明記を再徹底（期限10/13）。'],
+ ['2026-10-13','工事部向けの意見交換会。IAQコントローラーはエアコン本体から水平5m以内、ダクト最長6m（推奨4m）。'],
+ ['2026-10-22','設計部向けの説明会（Panasonicリビング近畿）。壁付けグリルの販売価格、脱臭オプション、室外機の説明が西のタスク。'],
+ ['2026-12-24','運転中を確認できる体感会と、Panasonicの工場見学を予定（確定ではない）。'],['2026-11-12','8:30 お客様邸（全館空調採用）に現地集合。実機を体感し、Panasonic担当（9:00合流）から10年保証の説明を受ける（営業会議）。'],
+ ['2026-12-24','Panasonic春日工場で全空調システムを見学（木曜）。ICや営業など最大20名が参加可能で、林さんが出席者リストを作成して先方と調整中。営業会議では愛知での全館空調・24時間換気の視察として、リーダー陣で参加者を集計（リーダーMTG、営業会議）。']]},
+{id:'epc',cat:'air',name:'蓄電池 EP Cube・HEMS',own:'西',
+ status:'EP Cubeは見送り、POWER DEPO Rへ切替。LIFE Xの蓄電池は長州産業の室内設置型も検討中。太陽光パネルはカナディアンソーラーへ順次切替。',
+ bars:[['2026-07-24','2026-10-03','採用可否の検討','d']],
+ ms:[['2026-08-18','Panasonic MTG','d'],['2026-09-10','POWER DEPO Rへ','d']],
+ ev:[['2026-07-24','JC-STAR適合ラベル未取得のため、取得後に採用判断する方針。AiSEG3対応機器にも未掲載。'],
+ ['2026-08-18','PanasonicとAiSEG3のMTG。カナディアンソーラー蓄電池は対応外で自動制御は不可。'],
+ ['2026-09-03','JC-STAR★1は9月頃取得予定。AiSEG3対応品に変更する案あり。'],
+ ['2026-09-10','JC-STAR審査が難航し取得予定は未定に。POWER DEPO Rで価格交渉へ切替。'],
+ ['2026-09-18','商社を再選定。'],
+ ['2026-10-03','商社は八興に決定。設計ICへ導入説明会を実施。'],
+ ['2026-10-09','LIFE X MTG。西が、長州産業の蓄電池（室内設置可）を提案。寒冷地の動作停止、夏の直射が課題。'],
+ ['2026-10-15','LIFE Xの蓄電池キャンペーンは反響が薄く終了（LIFEX MTG）。'],
+ ['2026-10-22','太陽光パネルをネクストエナジーからカナディアンソーラーへ順次切替（営業会議）。'],
+ ['2026-10-23','LIFE Xのキャンペーン特典を蓄電池へ切替える案。長州産業の室内設置型は価格差約10〜15万円、パネルセット必須。西が仕様と価格を確認（太田顧問MTG）。'],['2026-11-05','新商品SMARTは、原価を抑えるため太陽光を標準仕様から外す（営業会議）。']]},
+{id:'rh',cat:'air',name:'稲モデルハウス レンジフード結露',own:'西',
+ status:'運用ルールで暫定対応。8/20以降は新しい進展の記載なし。',
+ bars:[['2026-07-22','2026-07-31','暫定対応','d']],ms:[],
+ ev:[['2026-07-22','稲モデルでレンジフード結露を確認（外気36.8℃、露点24.2℃）。'],
+ ['2026-07-24','暫定対応。冷房設定25℃以上、レンジフード24時間換気ON。中長期は同時給排レンジフードなどを検討。'],
+ ['2026-07-31','営業にルール設定を依頼。']]},
+{id:'ng',cat:'new',name:'NoiseLess → G-residence',own:'西',
+ status:'G-residenceはフルオーダー寄りのブランド（別サイト・別ブランド）として再構築中。月1棟の受注が目標。標準は現行NoiseLess仕様ベースで坪100万円。リリースは2027年2月12日。11/5のMTGで、ターゲット（世帯年収3,000万円以上）と、白基調でアトリエ設計事務所寄りのデザイン方針を確認。次回は11/12 16:00。',
+ wk:[{d:'2026-11-09',r:'11/2〜11/9',wins:['10/29のコンセプト会議で、既存のGハウスとは別の、設計事務所寄りのブランドとして展開することで合意','ノイズレスの仕様を標準価格の基準にし、フルオーダー部分は個別見積りで対応','富裕層向けの独立したWebサイトを12月から制作することで合意','設計・積算が髙濱氏に集中しているため、負担の軽減が課題'],next:[['2026-11-12','11/12','ネーミング案とコンセプトを持ち寄り'],['2026-11-30','11月中','サイト構成を固める'],['2026-12-01','12月','専用サイトの制作を開始'],['2027-02-12','27/2/12','リリース']]}],
+ bars:[['2026-05-01','2026-07-31','NoiseLess 開発・リリース','d'],['2026-10-16','2026-11-05','再構築の方針協議','d'],['2026-11-05','2026-11-30','サイト構成','p'],['2026-12-01','2027-02-01','専用サイト制作','p']],
+ ms:[['2027-02-12','リリース','p']],
+ ev:[['2026-05-21','第1回デザイン勉強会。名称を「NoiseLess」に決定（引き算の美学・本質の美）。'],
+ ['2026-05-22','坪100万円で設定。基礎断熱は採用見送り。'],
+ ['2026-06-12','法的論点を整理。7,000万円以上で専任配置義務、8,000万円超で特定建設業許可。'],
+ ['2026-06-19','7月リリースを決定。建築申込金10万円（返金なし）、契約から最大5ヶ月。'],
+ ['2026-07-03','体制を決定。営業・設計・IC・工事の担当者を確定。'],
+ ['2026-07-31','実行予算ベースで価格を坪85万円に変更。'],
+ ['2026-10-16','G-residence MTG。設計自由度を重視する方向へ。耐震等級3を必須に。'],
+ ['2026-10-23','現行NoiseLessの標準仕様をベースに柔軟対応する方向を確認。月1棟の受注目標から逆算。'],
+ ['2026-10-29','目標・名称・コンセプト・推進体制を協議。'],
+ ['2026-12-01','専用サイトの制作開始を目指す。',['b','専用サイト制作','from',0]],
+ ['2027-02-12','リリース。',['m','リリース','d',0]],
+ ['2026-10-16','「Gレジデンス（旧ノイズレス）」を、規格やスタイルブックの制限を撤廃した完全フルオーダー寄りに再定義。耐震等級3は必須、すでに4件が進行（G-residence MTG）。'],
+ ['2026-10-19','受注目標は当面「月1件」。社長が「新商品のリリースは絶対2月」と明言。高濱さんの事務作業のバックアップ体制を作る（経営会議）。'],
+ ['2026-10-26','社長がラシエは「アフォーダブルラグジュアリー」、レジデンスは「富裕層向け」と整理。集客ルート・客層は別（経営会議）。'],
+ ['2026-10-29','別サイト・別ブランドで展開。坪100万円を標準とし、差額は別見積。2月のサイト公開に向け12月頃に制作入り、素材は11月中に確保（Gresidence MTG）。'],
+ ['2026-11-12','ネーミング案とコンセプトを持ち寄り（11月度報告）。'],
+ ['2026-11-30','サイト構成を固める（11月度報告）。',['b','サイト構成','to',0]],
+ ['2026-11-06','デザインを訴求の軸にし、性能・保証の説明はサイト内で完結させる。設計事務所寄りのトーンで、メインサイトと切り離した別サイトにする（11月度報告）。'],['2026-11-02','社長が、ラシエとG-residenceの競合を気にせず、それぞれ責任を持って良い商品を作る方針を示す（経営会議）。'],
+ ['2026-11-05','G-residence MTG。ターゲットは世帯年収3,000万円以上で、大手ハウスメーカーやアトリエ系設計事務所に不満を持つ層。ノイズレスをベースにフルイレギュラー対応が可能な商品と位置づけ、サイトでは「フルオーダー」ではなく「デザイン」を軸に打ち出す。ノイズレスのデザインコード（視覚的静寂・引き算の美学）を引き継ぎ、白基調でアトリエ設計事務所寄りのトーン。事例はコピーライターを起用し、パースを多数作成。ロゴは外部に依頼する方針。次回は11/12（木）16:00で、全員がネーミング案を持ち寄る。'],
+ ['2026-11-05','西の宿題は、ペルソナ策定（角山さんと）、過去の顧客がどう知ったかの営業ヒアリング、サイト用パースの作成、議事録の共有（G-residence MTG）。']]},
+{id:'lacie',cat:'new',name:'LACIE（ラシエ）',own:'渡邉',
+ status:'リリース予定は12/11（SMARTとあわせて）。現在は仕様・価格を調整中。標準採用は、空間演出6P（5,460mm）、LIXIL TW、全館空調、塗り壁（1面のみ）の4本柱。担当は渡邉大介さん。',
+ wk:[{d:'2026-11-09',r:'11/2〜11/9',wins:['標準採用を、空間演出6P（5,460mm）、LIXIL TW、全館空調、塗り壁（1面のみ）の4本柱に整理','特別採用として、ホームエレベーター・サウナ（Panasonic）、防音室（大建工業）を検討中','LIXIL TWは、UA値0.46以下を満たす窓の本数・サイズに制限し、標準で採用できる目安表を整備する','11/2の経営会議で、G-residenceへの配慮や社内調整はせず、LACIEは独立して進める方針を確認'],next:[['2026-11-30','STEP1','メーカー確認：Panasonic（エレベーター・サウナの価格と施工条件）、大建工業（防音室）、LIXIL TW（採用ルール）'],['2026-11-30','STEP2','原価試算：標準採用を含めて価格が成立するか確認し、塗り壁など標準原価を見直す'],['2026-11-30','STEP3','ダウンフロア・天井高・軒の出を、標準／オプション／不採用で判断'],['2026-11-30','営業ツール','LIFE＋との仕様比較表、サッシ採用ルール表、特別採用カタログを作成'],['2026-12-11','12/11','リリース予定（SMARTとあわせて）']]}],
+ bars:[['2026-05-01','2026-07-17','開発・価格確定','d'],['2026-10-01','2026-11-05','コンセプト検討','d'],['2026-11-05','2026-12-11','仕様・価格の確定','p']],
+ ms:[['2026-07-10','HP公開','d'],['2026-12-11','リリース予定','p']],
+ ev:[['2026-04-07','一条工務店とのストコン実施。一条は4/3から断熱等級7を標準化。'],
+ ['2026-05-29','リリースを5月から6月に変更（のち7月）。'],
+ ['2026-06-05','名称「LACIE」の継続を確定。家事楽・家具のコーディネートも武器に。'],
+ ['2026-07-10','HPを公開済み。'],
+ ['2026-07-17','73万円/坪で確定。'],
+ ['2026-10-30','新LACIE。受注30%、9棟/月、78万円/坪が目標（10/30資料では2027年1月リリース。のちに12/11へ）。'],
+ ['2026-12-11','リリース予定（SMARTとあわせて）。',['m','リリース予定','d',0]],
+ ['2026-10-19','経営会議でSMARTとLACIEのリリース日を12/11（金）と決定。担当は渡邉大介さん。'],
+ ['2026-10-23','コンセプト会議。断熱等級7、トリプルサッシ、睡眠研究にもとづく間接照明の標準化を西が提案。坪78万円を維持。結論は「さらなる議論が必要」。'],
+ ['2026-10-26','社長は「価格は上げてよい。平均粗利900万円・粗利率約25%を維持したい」と発言（経営会議）。'],
+ ['2026-10-27','決議打合せ。サッシはAPW330ペアガラス、坪単価の上限は85万円、打合せ期間は5ヶ月以内。'],
+ ['2026-10-29','詳細確認。打合せは3ヶ月6回を維持、目標は坪78万円・上限85万円。渡邉さんが「12月にするのはかなりきつい」と発言。'],
+ ['2026-11-06','商品企画書（10月）をまとめ、LIFE＋の上位互換としての位置づけを整理。ターゲットはミレニアル世代中心の一次取得層（想定）（11月度報告）。'],
+ ['2026-11-06','特別採用として、ホームエレベーター・サウナ（Panasonic）、防音室（大建工業）を検討。LIXIL TWはUA値0.46以下を満たす窓の本数・サイズに制限し、採用の目安表を整備（11月度報告）。'],
+ ['2026-11-30','メーカー確認（Panasonic、大建工業、LIXIL TW）、原価試算、ダウンフロア・天井高・軒の出の判断を完了。LIFE＋との仕様比較表、サッシ採用ルール表、特別採用カタログを作成（11月度報告）。'],['2026-11-02','社長が、ラシエの開発はG-residenceへの気遣いや社内調整を一切せずに進める方針を示す（経営会議）。']]},
+{id:'smart',cat:'new',name:'SMART（新商品）',own:'渡邉',
+ status:'リリース予定は12/11。11/5の営業会議で仕様・原価・価格案を提示。価格・仕様は引き続き意見集約中。11月中旬にWEB第1段階を発信する。',
+ wk:[{d:'2026-11-09',r:'11/2〜11/9',wins:['11/6のキックオフで、キッチンはタカラスタンダードに限定。別の仕様を希望するお客様はLIFEへ案内する','ダンパーと第1種換気は標準から外し、オプションにする','WEBの価格提示は、複雑なシミュレーターではなく価格表（施工坪数1坪刻み）にする。ワイヤーフレームは角山さんが担当','販売価格と原価の最終決定は保留。LIFEの原価データとの突合が必要'],next:[['2026-11-16','11月中旬','渡邉：LIFEの原価を再確認し、価格と利益率を再設定。資金計画書に準防火地域・照明（30〜50万円）・電線防護管（25万円）・給排水引込（40万円）を反映'],['2026-11-16','11月中旬','趙祐規：SMARTとLIFEの原価データを照合し、想定粗利を確認'],['2026-11-16','11月中旬','WEB第1段階を発信し、複数パターンでテスト運用'],['2026-12-11','12/11','リリース予定']]}],
+ bars:[['2026-10-14','2026-11-01','企画・仕様検討','d'],['2026-11-01','2026-12-11','キックオフ〜準備','p']],
+ ms:[['2026-12-11','リリース予定','p']],
+ ev:[['2026-10-14','営業会議でリリースは12月中頃、渡邉大介さんがリーダー。'],
+ ['2026-10-16','ライフプラスより最低300万円安くする。タカラスタンダードに設備を統一。10月末に原価を出し、11月中旬に第1段階の発信。'],
+ ['2026-10-19','経営会議でSMARTとLACIEのリリース日を12/11（金）と決定。'],
+ ['2026-10-23','建築申込金20万円、設計は提案前に1回・契約後のIC打合せは2回が原則。目標粗利率25%。'],
+ ['2026-10-26','来週（11/2の週）にキックオフ（経営会議）。'],
+ ['2026-12-11','リリース予定。',['m','リリース予定','d',0]],
+ ['2026-11-06','原価がすべて揃う予定。外壁・設備・プレカット代などの原価を確定（11月度報告）。'],
+ ['2026-11-06','ルール・価格を決定。1坪刻みの本体価格表、照明の標準範囲、営業の運用フロー（11月度報告）。'],
+ ['2026-11-06','WEB準備のキックオフ。特設ページ、新商品バナー、WEB簡易見積（11月度報告）。'],
+ ['2026-11-06','標準仕様はメーカーを絞って統一（キッチン・浴室・洗面はタカラスタンダードなど）。内装は12パターンのコーディネートセットから選ぶ。HPは施工坪数1坪刻み（25〜35坪）の概算価格を表示（11月度報告）。'],
+ ['2026-11-16','11月中旬にWEB第1段階を発信し、複数パターンでテスト運用（11月度報告）。'],['2026-11-02','経営会議。ライフの仕様変更は行わず、SMARTを低価格帯の新商品として展開。「圧倒的なデザインと高性能を低価格で提供する」商品として打ち出し、時間短縮を前面に出さない方針。ネーミング候補は「ライフコア」「ライフセレクト」「ライフフィット」（渡邉さん案）。'],
+ ['2026-11-05','営業会議で案を提示。原価・販売価格・粗利は社内で検討中。Gプランから選択、25〜35坪限定、建築申込金20万円は契約金に充当、水回りはタカラスタンダード指定。'],
+ ['2026-11-05','外壁は日波または「経由」（表記は要確認）のセレクト品で、1物件につき1メーカー。太陽光は標準から外す。HPで規模に応じた本体価格と諸経費の目安を公開する。基本プランの決定から設計まで約3週間〜1ヶ月。価格・仕様は引き続き意見を集める。渡邉さんが社員から率直な意見（売れるか、売ろうと思うか）をヒアリングし、別のネーミング案も募集（営業会議）。']]},
+{id:'lifex',cat:'new',name:'LIFE X（規格住宅）',own:'西',
+ status:'ウォールスタットの耐震検証を19件実施。キャンペーン用蓄電池は見直し中。11月末に120プランが目標で、23坪前後・3LDKのコンパクト平屋などの追加を検討。',
+ bars:[['2026-05-01','2026-06-11','選定プラン・セミナー資料','d'],['2026-09-10','2026-10-30','耐震検証','d']],ms:[],
+ ev:[['2026-05-08','G-PLANから選定するプランの準備期限。'],
+ ['2026-05-29','HP商品ページ作成を手配。'],
+ ['2026-06-08','セミナースライドの完成期限（6/11版構成案）。'],
+ ['2026-09-10','ウォールスタット検証を開始。キャンペーン用蓄電池はPOWER DEPO Rm。'],
+ ['2026-10-30','震度6〜7の1.5倍の揺れで19件を検証済み。蓄電池の商品を見直し。'],
+ ['2026-10-09','外壁そのままで+50万円の価格改定を11/1から実施（LIFEX MTG）。'],
+ ['2026-10-12','年内に120プランが目標（11月末が第1目標）（LIFEX MTG）。'],
+ ['2026-10-30','37坪プランの本体価格は2,450万円、11月の価格改定に合わせてリリース。LIFE X契約は10月に7件（内定ベース11件）。'],['2026-11-02','価格改定（+50万円）の設定は全て完了。37坪プランも順次設定し、公開できるものから公開（LIFEX MTG）。'],
+ ['2026-11-02','配管はパイプスペースか蹴り出し（外部配管）を、エリアや加盟店の判断で選べる。火山灰対策の屋根勾配は基本0.5寸で、地域特性により柔軟に変更可。外壁の標準仕様は日波・ミュートと見直しを協議。ライフX限定で、敷地の住所から寸法に合うプランを表示する仕組みを開発中（LIFEX MTG）。'],
+ ['2026-11-06','加盟店からの要望で、23坪前後・3LDKのコンパクト平屋プランと、4LDKプランの追加を検討。要望があるなら作ればよいとの判断で、11月末に120プランが準備完了の目標を維持して作り続ける（LIFEX MTG）。']]},
+{id:'dryer',cat:'new',name:'Panasonic 電気衣類乾燥機',own:'西',
+ status:'実機確認会は10/29と11/5。11/10に永大産業と施工方法を協議。安全確認のあとに仕様・売価・保証を確定し、正式な導入日を決定する。LIFE X側は11/15目安でスタイルブックに載せたい意向（藤本さん）。',
+ wk:[{d:'2026-11-09',r:'11/2〜11/9',wins:['実機確認会は1回目（10/29）、2回目（11/5）とも無事終了','排気量は100㎥/h。高気密住宅では差圧ダンパー（差圧給気口）が必要','差圧給気口を全棟標準にする場合の費用・必要給気量・設置位置・施工条件を確認中'],next:[['2026-11-10','11/10','永大産業と施工方法を協議（16時）'],['2026-11-30','確定次第','安全確認の結果をもとに、給気対策・仕様・売価・保証を確定'],['2026-11-30','その後','正式な導入日を決定']]}],
+ bars:[['2026-07-10','2026-10-29','仕様・見積・設置方法の確認','d'],['2026-10-29','2026-11-11','確認会・説明会','p'],['2026-11-11','2026-11-30','仕様確定','p']],
+ ms:[],
+ ev:[['2026-07-10','発売は11月。詳細資料は8月末頃に開示予定。'],
+ ['2026-08-06','施工説明書・外形寸法図を受領。'],
+ ['2026-09-18','見積を受領。製品75,000円、施工費45,000円。'],
+ ['2026-10-14','永大産業と打合せ。設置方法の分担を確認。'],
+ ['2026-10-29','実機確認会（15時）。'],
+ ['2026-11-05','実機確認会（14時）。'],
+ ['2026-11-10','施工説明会（16時）。',['b','確認会・説明会','to',1]],
+ ['2026-10-09','換気乾燥機を吸気口セットで採用する方向。見積依頼中、施工費は客負担で約25万円。発売は11月上旬の見込み（商品企画部MTG）。'],
+ ['2026-10-26','営業全員が実機確認に参加することを決定（経営会議）。'],
+ ['2026-10-29','営業会議でPanasonic大阪ショールームの確認日程（10/29、11/5）を共有。'],
+ ['2026-11-06','排気量は100㎥/h。高気密住宅では差圧ダンパーが必要。永大産業の収納との組み合わせを検討（11月度報告）。'],
+ ['2026-11-30','安全確認の結果をもとに、給気対策・仕様・売価・保証を確定。その後、正式な導入日を決定（11月度報告）。'],['2026-11-02','LIFE Xでは、乾燥機オプションを11月中旬以降、15日を目安にスタイルブックへ載せたい意向（藤本さん、LIFEX MTG）。'],
+ ['2026-11-05','営業会議で、乾燥時間が従来の約半分、低温で衣類が縮みにくく、価格も安い点を営業に周知。'],
+ ['2026-11-06','LIFEX MTGで、パナソニックの乾燥機・パスカルダンパー・換気の導入時期を確認。注文住宅とLIFE Xで同時にリリースできるスケジュールで調整し、時期は西が確認する。']]},
+{id:'sleep',cat:'air',name:'睡眠研究（山形大・安田女子大）',own:'西',
+ status:'共同研究案の確認段階。契約・費用・人数・日程を調整中。20名だと実験完了が2027年5月頃まで延びる可能性。',
+ wk:[{d:'2026-11-09',r:'11/2〜11/9',wins:['共同研究の継続を決定し、契約書・申請の手続きを進行中','被験者の人数と日程を調整中。20名の場合は実験が5月頃まで延びる可能性','人数だけを優先せず、研究に必要なデータを確保できる方法へ調整する方針（10/30）'],next:[['2026-11-30','調整中','被験者数と日程を大学側と確定'],['2026-12-07','12/7前後','照明条件の事前測定・機器設定'],['2026-12-20','12月後半','被験者実験を開始']]}],
+ bars:[['2026-10-04','2026-12-07','共同研究案の調整','d'],['2026-12-07','2027-05-31','事前測定・被験者実験','p']],ms:[],
+ ev:[['2026-10-04','共同研究案を作成（10/23の資料に初出）。'],
+ ['2026-10-23','費用は110〜140万円。男子学生10〜20名が1人5泊。'],
+ ['2026-10-30','20名の場合は実験完了が2027年5月頃になるため、人数と日程を調整。'],
+ ['2026-12-07','照明・計測機器の事前測定。',['b','事前測定・被験者実験','from',0]],
+ ['2027-05-31','被験者実験の終了目安（20名上限）。',['b','事前測定・被験者実験','to',0]],
+ ['2026-10-16','今年も実施すると社長が決定。12月中旬から実験開始（商品企画部MTG）。'],
+ ['2026-11-06','共同研究の継続を決定し、契約書・申請の手続きを進行中。被験者の人数と日程を大学側と調整（11月度報告）。'],
+ ['2026-12-20','被験者実験を開始（12月後半）（11月度報告）。']]},
+{id:'cost',cat:'oth',name:'原価改善（トルネオ・e-core・付加断熱）',own:'西',
+ status:'トルネオプラスと朝日ウッドテックe-coreは5月契約から切替済み。',
+ bars:[['2026-05-01','2026-06-30','5月契約から切替','d']],
+ ms:[['2026-05-18','e-core価格確定','d']],
+ ev:[['2026-03-26','オーブレットライフと打合せ。4/17に施工説明会。'],
+ ['2026-04-20','社長へ断熱等級7（付加断熱）の健康メリットを再プレゼン。'],
+ ['2026-05-01','トルネオプラスに切替。粗利率40%→65%。'],
+ ['2026-05-18','パーティクルボードe-coreの価格を確定。MRXは坪8,500→8,050円。'],
+ ['2026-06-05','朝日ウッドテック工場見学。'],
+ ['2026-07-03','工事部が「一斉導入」と「施工の統一」を条件に概ね了承。'],
+ ['2026-10-12','コスト削減プロジェクトは目標88万円に対し99万円を達成済み（経営会議）。'],
+ ['2026-10-16','今後の業者選定と見積依頼は、工事業務推進部に集約（商品企画部MTG）。'],
+ ['2026-10-26','共同購買は社内運用を2/1に開始、対外案内は2月中旬（経営会議）。'],['2026-11-02','STCKを窓口にワンアライアンスへ加盟し、建築資材の共同購入プロジェクトを11/17にリリースすることを決定。メーカーへの仕入価格・協議の発信は工事業務推進部に一本化（経営会議）。']]},
+{id:'part',cat:'oth',name:'提携先・調達（田中工藝・吉本・フィオレ）',own:'山根',
+ status:'田中工藝は承認済みで、送客ツールの完成時期は未定。吉本産業は直取引が絶対条件で交渉中。',
+ bars:[['2026-05-15','2026-06-26','田中工藝 連携','d'],['2026-06-08','2026-08-06','吉本産業 直取引交渉','d']],
+ ms:[['2026-06-09','田中工藝 視察','d']],
+ ev:[['2026-05-29','田中工藝との4フェーズ計画を提示。'],
+ ['2026-06-03','田中工藝と協議。QR付き紹介カードのライトな形を基本に。'],
+ ['2026-06-09','大分の田中工藝本社・工場を視察。'],
+ ['2026-06-19','フィオレマテリアル導入を提案。不動産業者用案内ツールを開始。'],
+ ['2026-06-23','吉本産業のSR見学。与信調査が始まる。'],
+ ['2026-06-26','紹介料のお客様還元額は30万円。'],
+ ['2026-07-22','吉本産業の営業部長に直接交渉。'],
+ ['2026-08-06','吉本から再度、商社を挟む打診。'],
+ ['2026-10-05','人工大理石メーカーと打合せ。ハイマックスが最安で現場ジョイントがきれい。'],
+ ['2026-10-13','ブルムと打合せ。引き出しレールとフラップ金具の仕様を確認。金物の採用は未決定。'],
+ ['2026-10-14','ハーフェレとBLANCOシンク（65掛け）を打合せ。三面鏡のOEM先も紹介してもらう。'],
+ ['2026-10-15','豊浦工業とシンクを打合せ。直接取引を希望。'],['2026-11-05','三面鏡（ミラタップ製品）は、ハーフェレ経由でOEM先を紹介してもらう流れ（OEM先→ハーフェレ→Gハウス）。目標は、自社の粗利を乗せてもミラタップの売価を下回ること（定例報告）。']]},
+{id:'mh',cat:'oth',name:'モデルハウス設え（実物大モックアップ）',own:'山根',
+ status:'旭区モデルに設置済み。2〜5台目はナオキ建装に委託し、8月末までに各モデルへ設置予定だった。',
+ bars:[['2026-05-01','2026-07-22','製作','d'],['2026-07-22','2026-08-31','2〜5台目の設置','d']],
+ ms:[['2026-07-23','営業勉強会','d']],
+ ev:[['2026-05-01','藤田部長へ依頼済み。窓口は宮内さん。'],
+ ['2026-06-26','7/1完成は物理的に困難と判断。'],
+ ['2026-07-15','吹付け断熱の充填完了。'],
+ ['2026-07-22','旭区モデルハウスに設置。'],
+ ['2026-07-23','営業向け勉強会。'],
+ ['2026-08-31','2〜5台目の設置完了予定。'],
+ ['2026-10-19','新しいモデルハウスは後期工程が2週間遅れ、2027年6月上旬のオープンを目指す（経営会議）。'],['2026-11-02','補助事業を使ったモデルハウスの賃貸利用や、50年保有のリフォームモデル案は、禁止行為に当たることや現実性の面から不採用（経営会議）。']]},
+{id:'panel',cat:'oth',name:'モデルハウスのパネル',own:'山根',
+ status:'長岡京モデルに設置済み。西宮へ2セット目を設置し、各モデルハウスへ順次展開。',
+ wk:[{d:'2026-11-09',r:'11/2〜11/9',wins:['長岡京モデルに商品訴求パネルを設置済み（10/1）','差し替えしやすい設置方法を検討'],next:[['2026-12-31','順次','西宮へ2セット目を設置し、各モデルハウスへ展開']]}],
+ bars:[],
+ ms:[['2026-10-01','長岡京に設置','d']],
+ ev:[['2026-10-01','長岡京モデルに商品訴求パネルを設置。QRリンクの不具合は解消（スタイルブックMTG）。'],
+ ['2026-11-06','差し替えしやすい設置方法を検討（11月度報告）。'],
+ ['2026-12-31','西宮へ2セット目を設置し、各モデルハウスへ順次展開（11月度報告）。']]},
+{id:'sb',cat:'gp',name:'スタイルブック粗利改善',own:'山根・西',
+ status:'10月末に内容を確定し、11月から順次スタイルブックに反映。11月度報告では、粗利+30万円/棟が目標。施策のWIC収納・TVボード・家電は、11月中にリリース。',
+ wk:[{d:'2026-11-09',r:'11/2〜11/9',wins:['WIC収納（フィルフィット規格化）とTVボード（背面の逃げを確保した仕様）の仕様が固まった。総原価と価格は精査中','家電5分類（冷蔵庫・洗濯機・TV・ロボット掃除機・加湿空気清浄機）を選定'],next:[['2026-11-10','11/10頃','WIC収納の施工方法を、関係部署と協議'],['2026-11-30','11月中','WIC収納・TVボードをリリース']]}],
+ bars:[['2026-09-25','2026-10-31','内容の検討','d'],['2026-11-01','2026-12-01','順次反映','p']],ms:[],
+ ev:[['2026-09-25','項目として初出。'],
+ ['2026-10-03','10月末に内容確定、11月以降に反映と設定。担当を割り当て。'],
+ ['2026-10-23','「家具・カーテン」を追加。お施主様サイトへ掲載。'],
+ ['2026-10-31','内容確定。',['b','内容の検討','to',0]],
+ ['2026-11-30','11月から順次反映。',['b','順次反映','to',1]],
+ ['2026-10-21','外構スタイルブックは精査待ち。打合せガイドブックは10月中に完成、11月リリース（リーダーMTG）。'],
+ ['2026-10-23','内装スタイルブックは高さルールを統一（商品企画部1on1）。'],
+ ['2026-10-01','WIC収納（フィルフィット）の企画商品化を決定。奥行は400・600mm、カラー4色、取っ手なし（スタイルブックMTG）。'],
+ ['2026-10-03','永大産業のテレビボードと金具を採用。客価格は約6.8万円、10月末〜11月にリリース。'],
+ ['2026-10-15','家電PJ。対象は冷蔵庫・洗濯機・テレビ・お掃除ロボ・加湿空気清浄機。10月末にカタログを作り、11月中にリリース。家電と収納で粗利平均+10万円が目標。'],
+ ['2026-10-16','新商品（フィルフィット、テレビボード、カタ君収納）は今月末リリース、金額・工事共有は11月（商品企画部MTG）。'],
+ ['2026-10-23','テレビボードの原価が山根さんの交渉で4万円から3.4万円（28掛け）に（商品企画部1on1）。'],
+ ['2026-11-04','フィットラック（収納レール）の説明。特許構造で取付15分、ビス固定で耐荷重150kg、ECで追加パーツを購入できる。次は、カタログ・チラシ、モデルハウス2棟分のプランと見積の準備。'],
+ ['2026-11-06','WIC収納（フィルフィット規格化）とTVボード（背面の逃げを確保した仕様）の仕様が固まった。11月中にリリース（11月度報告）。']]},
+{id:'furn',cat:'gp',name:'オンライン家具サイト／展示会',own:'西・山根',
+ status:'リラシオネスのサイトを参考に、お客様が直接購入できる仕組みを自社開発する構想。方針と役割分担は11/4の打合せで決める。',
+ wk:[{d:'2026-11-09',r:'11/2〜11/9',wins:['家具・カーテンの予算を、資金計画書に組み込む方針','家具のオンライン販売は、リラシオネスのサイトを活用し、自社で発注受注を行わずに利益を残す方針（11/2の経営会議で決定）'],next:[['2026-11-18','11/18・20','展示会視察（家具の情報収集）'],['2026-11-30','11月中','家具サイトの役割分担と方針を決定']]}],
+ bars:[['2026-11-18','2026-11-21','展示会視察','p']],
+ ms:[['2026-11-04','方針ミーティング','p']],
+ ev:[['2026-10-30','社長から構想を説明。購入額に応じてマージンが入る仕組みで、他の工務店にも使ってもらう案。'],
+ ['2026-11-04','古谷さんとミーティング（来週水曜15時）。方針と役割分担、スケジュールを決定。',['m','方針ミーティング','d',0]],
+ ['2026-11-18','ジャパンテックスを視察。家具の情報収集と取引先リストの作成。',['b','展示会視察','from',0]],
+ ['2026-11-20','アジアファニシングフェアを視察。'],
+ ['2026-10-19','資金計画書の諸経費欄に家具・カーテンの見込み予算を最初から組み込むことを決定。スタイルブックへ11月掲載を目指す（経営会議）。'],
+ ['2026-10-23','コーディネート済みの家具・家電を、AX事業部のiPad向けWeb（11月頃リリース予定）に載せる方向。西さんがAX事業部と調整（太田顧問MTG）。'],
+ ['2026-10-26','リラシオネスをベースにしたGハウス版の家具システムを自社開発。再販許可あり。営業事務が今期から家具家電を提案販売（経営会議）。'],
+ ['2026-11-30','家具サイトの役割分担と方針を11月中に決定（11月度報告）。'],['2026-11-02','家具事業はシオネス社のサイトを活用し、自社で発注・受注を行わずに利益を残す仕組みを目指す（経営会議）。'],
+ ['2026-11-05','ICから、家具はローンに組み込めることと引渡し時に揃うこと以外にGハウスで買うメリットが少なく、ネットのほうが安いことが多い、という課題が出た。カーテンは提案しやすい（IC MT）。']]},
+{id:'corp',cat:'oth',name:'全社目標（商品企画部に関わるもの）',own:'全社',
+ status:'商品部の目標は「10万→30万」への引き上げとG-residenceの月1棟（10/19）。来期の目標は320〜340件（10/29資料）、348棟（11/5営業会議）と記載が異なる。',
+ bars:[],
+ ms:[['2026-10-19','商品部目標','d'],['2026-10-29','10月契約32件','d']],
+ ev:[['2026-10-12','契約率25〜27%を目指す（経営会議）。'],
+ ['2026-10-19','商品部の目標を「10万→30万」に引き上げ、G-residenceは月1棟。12月末までの販売目標を全員で共有。今期は利益率5%を確保（経営会議）。'],
+ ['2026-10-29','10月の契約は32件（解約2件）。来期は320〜340件が目標（営業会議）。'],['2026-11-02','契約率30%・建築申込率40%を目指す方針。西と西村さんが、契約率向上の施策を打ち合わせる（経営会議）。'],
+ ['2026-11-05','10月の着地実績は29件。来期の目標は348棟（営業会議）。']]}
+];
+
+const $=s=>document.querySelector(s);
+const todayStr=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+let TODAY=todayStr();const DAY=864e5;
+const toISO=t=>new Date(t).toISOString().slice(0,10);
+const addDays=(d,n)=>toISO(new Date(d).getTime()+n*DAY);
+const fmt=d=>{const [y,m,dd]=d.split('-');return y==='2026'?`${+m}/${+dd}`:`${y.slice(2)}/${+m}/${+dd}`};
+const clamp=v=>Math.max(0,Math.min(100,v));
+const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+let filter='all';
+// 日程の変更は共有データ(db)に保存。キーは項目の内容から作る。
+const hash=s=>{let h=5381;for(const c of s)h=((h<<5)+h+c.codePointAt(0))>>>0;return h.toString(36)};
+const kBar=(p,b)=>'b'+hash(p.id+'|'+b[2]), kMs=(p,m)=>'m'+hash(p.id+'|'+m[1]), kEv=(p,e)=>'e'+hash(p.id+'|'+e[0]+'|'+e[1]), kOwn=p=>'o'+hash(p.id+'|own'), kNm=p=>'n'+hash(p.id+'|name'), kDel=p=>'x'+hash(p.id+'|del'), kDone=p=>'c'+hash(p.id+'|done');
+const isDel=p=>!!(OV[kDel(p)]||{}).del;
+let OV={}, AD={}, canWrite=false, ovRef=null, addRef=null, queue=Promise.resolve();
+let adding=null, adDraft={d:'',t:''}, editKey=null, editDraft='', armKey=null;
+const openSet=new Set();
+
+function eff(p){
+  const bars=p.bars.map(b=>{const o=OV[kBar(p,b)]||{};const from=o.from||b[0],to=o.to||b[1];
+    return {k:kBar(p,b),l:b[2],s:b[3],from,to,chg:from!==b[0]||to!==b[1]}});
+  const ms=p.ms.map(m=>{const o=OV[kMs(p,m)]||{};const d=o.d||m[0];
+    return {k:kMs(p,m),l:m[1],s:m[2],d,chg:d!==m[0]}});
+  const evAll=p.ev.map(e=>{
+    const link=e[2];let d=e[0];const o=OV[kEv(p,e)]||{};
+    if(link){const t=link[0]==='b'?bars.find(x=>x.l===link[1]):ms.find(x=>x.l===link[1]);
+      if(t){const fv=link[0]==='b'?t[link[2]]:t.d;d=addDays(fv,-link[3]);}}
+    else if(o.d)d=o.d;
+    const nt=o.nt!=null&&o.nt!==''?o.nt:null;
+    return {k:kEv(p,e),t:nt!==null?nt:e[1],ot:e[1],d,od:e[0],link,chg:d!==e[0],added:false,del:!!o.del,tchg:nt!==null&&nt!==e[1]};
+  });
+  Object.entries(AD).forEach(([id,a])=>{if(a&&a.p===p.id&&a.d&&a.t)evAll.push({k:id,t:a.t,ot:a.t,d:a.d,od:a.d,link:null,chg:false,added:true,del:false,tchg:false})});
+  evAll.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
+  const ev=evAll.filter(x=>!x.del), delEv=evAll.filter(x=>x.del);
+  const oo=OV[kOwn(p)]||{};const own=oo.own?oo.own:p.own;
+  const no=OV[kNm(p)]||{};const name=no.name?no.name:p.name;
+  const dn=OV[kDone(p)]||{};
+  return {...p,done:!!dn.done,doneD:dn.d||'',name,nameK:kNm(p),nameChg:name!==p.name,own,ownK:kOwn(p),ownChg:own!==p.own,bars,ms,ev,delEv};
+}
+function ganttHTML(){
+  const S0=toISO(START);const mons=[];for(let d=new Date(START);d<END;d.setUTCMonth(d.getUTCMonth()+1))mons.push([d.getUTCFullYear(),d.getUTCMonth()+1]);NM=mons.length;
+  const head=`<div class="g-row g-head"><div class="g-label" style="border-bottom:0"><small style="padding:0">${START.getUTCFullYear()}年${START.getUTCMonth()+1}月 → 2027年6月</small></div><div class="g-track" style="min-height:0;background:none"><div class="g-months">${mons.map(([y,m],i)=>`<div class="${m===1||i===0?'y':''}">${i===0||m===1?String(y).slice(2)+'/':''}${m}月</div>`).join('')}</div></div></div>`;
+  const rows=P.filter(p=>!isDel(p)&&(filter==='all'||p.cat===filter)).map(eff).map(p=>{
+    const bars=p.bars.filter(b=>b.to>=S0).map(b=>{const l=clamp(pct(b.from)),w=Math.max(.6,clamp(pct(b.to))-l);
+      const f=Math.round(100*(new Date(TODAY)-new Date(b.from))/(new Date(b.to)-new Date(b.from)));
+      const st=b.to<=TODAY?'past':(f>0&&b.from<TODAY?'pp':'');
+      return `<div class="bar ${b.s==='p'?'plan':''} ${st}" title="${esc(b.l)}（${fmt(b.from)}〜${fmt(b.to)}）" style="left:${l}%;width:${w}%;--f:${Math.max(0,Math.min(100,f))}%"><span class="lb">${esc(b.l)}</span></div>`}).join('');
+    const ms=p.ms.filter(m=>m.d>=S0).map(m=>`<div class="ms ${m.s==='p'?'plan':''} ${m.d<TODAY?'past':''}" title="${esc(m.l)}（${fmt(m.d)}）" style="left:${clamp(pct(m.d))}%"></div>`).join('');
+    const msl=p.ms.filter(m=>m.d>=S0).map(m=>`<span class="mlab ${m.d<TODAY?'past':''}" style="position:absolute;top:6px;left:calc(${clamp(pct(m.d))}% + 12px);font-size:.64rem;color:var(--muted);white-space:nowrap;line-height:26px">${esc(m.l)}</span>`).join('');
+    return `<div class="g-row ${p.done?'done':''}" style="--c:var(--c-${p.cat})"><div class="g-label"><b><i></i>${esc(p.name)}${p.done?`<span class="nw">完了</span>`:''}</b><small>担当 ${esc(p.own)}</small></div><div class="g-track">${bars}${ms}${msl}</div></div>`;
+  }).join('');
+  const nx=pct(TODAY);
+  return head+rows+(nx>=0&&nx<=100?`<div style="position:absolute;left:188px;right:0;top:0;bottom:0;pointer-events:none"><div class="nowline" style="left:${nx}%"></div><div class="nowtag" style="left:${nx}%">今日 ${fmt(TODAY)}</div></div>`:'');
+}
+const dis=()=>canWrite?'':'disabled';
+const rs=(k,on)=>on&&canWrite?`<button class="rs" data-reset="${k}" type="button">元に戻す</button>`:'';
+function wkHTML(p){
+  if(!p.wk||!p.wk.length)return '';
+  const one=(w,latest)=>{
+    const old=(new Date(TODAY)-new Date(w.d))/DAY>7;
+    const t=`${latest&&!old?'今週':'週次'}の進捗（${w.r}、${fmt(w.d)}時点）`;
+    const lim=addDays(TODAY,13);
+    return `<h4>${t}</h4><ul>${w.wins.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><h4>次のアクション・期限</h4><ul class="nx">${w.next.map(n=>`<li class="${n[0]<TODAY?'pst':''}"><span class="ch ${n[0]>=TODAY&&n[0]<=lim?'soon':''}">${esc(n[1])}</span><span>${esc(n[2])}</span></li>`).join('')}</ul>`;
+  };
+  const rest=p.wk.slice(1);
+  return `<div class="wk">${one(p.wk[0],true)}${rest.length?`<details><summary>以前の週次（${rest.length}週）</summary>${rest.map(w=>one(w,false)).join('')}</details>`:''}</div>`;
+}
+function cardsHTML(){
+  const C0=showAll?'0000-00-00':cutoff();
+  return P.filter(p=>!isDel(p)&&(filter==='all'||p.cat===filter)).map(eff).map(p=>{
+    const vb=p.bars.filter(b=>b.to>=C0),vm=p.ms.filter(m=>m.d>=C0);const sched=(vb.length||vm.length)?`<div class="sched"><h4>タイムラインの日程</h4>`+
+      vb.map(b=>`<div class="sr ${b.chg?'chg':''} ${b.to<TODAY?'past':''}"><span class="sl">${esc(b.l)}</span><span class="sd"><input class="di" type="date" ${dis()} value="${b.from}" data-t="b" data-k="${b.k}" data-f="from" aria-label="${esc(b.l)} 開始日"> 〜 <input class="di" type="date" ${dis()} value="${b.to}" data-t="b" data-k="${b.k}" data-f="to" aria-label="${esc(b.l)} 終了日">${rs(b.k,b.chg)}</span></div>`).join('')+
+      vm.map(m=>`<div class="sr ${m.chg?'chg':''} ${m.d<TODAY?'past':''}"><span class="sl">◆ ${esc(m.l)}</span><span class="sd"><input class="di" type="date" ${dis()} value="${m.d}" data-t="m" data-k="${m.k}" data-f="d" aria-label="${esc(m.l)} の日付">${rs(m.k,m.chg)}</span></div>`).join('')+`</div>`:'';
+    const evV=p.ev.filter(e=>e.d>=C0),hid=p.ev.length-evV.length;const items=evV.map(e=>{
+      const rk=e.link?(e.link[0]==='b'?p.bars.find(x=>x.l===e.link[1]).k:p.ms.find(x=>x.l===e.link[1]).k):e.k;
+      const dateCell=`<span class="dwrap"><input class="di" type="date" ${dis()} value="${e.d}" data-t="e" data-k="${e.k}" data-f="d" aria-label="日付"> ${e.added?'':rs(rk,e.chg)}</span>`;
+      const body=editKey===e.k
+        ?`<div><textarea class="ta" id="ed-ta" rows="3" maxlength="400">${esc(editDraft)}</textarea><div class="ac"><button class="bt pr" type="button" data-act="save" data-k="${e.k}">保存</button><button class="bt" type="button" data-act="cancel">キャンセル</button></div></div>`
+        :`<div>${esc(e.t)}${e.added?'<span class="nw">追加</span>':''}${e.tchg?'<span class="nw">変更</span>':''}${canWrite?`<span class="ac"><button class="bt" type="button" data-act="edit" data-k="${e.k}">編集</button><button class="bt dg" type="button" data-act="del" data-k="${e.k}">${armKey===e.k?'本当に削除':'削除'}</button>${e.tchg?`<button class="bt" type="button" data-act="txreset" data-k="${e.k}">元の文に戻す</button>`:''}</span>`:''}</div>`;
+      return `<li class="${e.d>TODAY?'future':(e.d<TODAY?'past':'')} ${e.chg?'chg':''}">${dateCell}${body}</li>`;
+    }).join('');
+    const ownBox=!canWrite?'':`<div class="sched"><h4>プロジェクト名</h4><span class=\"sd\" style=\"display:flex;gap:4px;align-items:center\"><input class=\"di\" style=\"width:100%;max-width:360px\" type=\"text\" maxlength=\"50\" value=\"${esc(p.name)}\" data-nm=\"${p.id}\" aria-label=\"プロジェクト名\">${rs(p.nameK,p.nameChg)}</span><h4>担当</h4><span class="sd" style="display:flex;gap:4px;align-items:center"><input class="di" style="width:220px" type="text" maxlength="30" value="${esc(p.own)}" data-own="${p.id}" aria-label="担当者">${rs(p.ownK,p.ownChg)}</span><div class="ac" style="margin-top:10px"><button class="bt ${p.done?'':'pr'}" type="button" data-pact="done" data-pid="${p.id}">${p.done?'完了を取り消す':'完了にする'}</button><button class="bt dg" type="button" data-pact="del" data-pid="${p.id}">${armKey==='proj:'+p.id?'本当に削除':'このプロジェクトを削除'}</button></div></div>`;
+    const addBox=!canWrite?'':(adding===p.id
+      ?`<div class="addbox"><input class="di" id="ad-d" type="date" value="${adDraft.d}" aria-label="追加する経緯の日付"><textarea class="ta" id="ad-t" rows="3" maxlength="400" placeholder="経緯の内容">${esc(adDraft.t)}</textarea><div class="ac"><button class="bt pr" type="button" data-act="addsave" data-p="${p.id}">追加</button><button class="bt" type="button" data-act="addcancel">キャンセル</button></div></div>`
+      :`<div class="addbox"><button class="bt" type="button" data-act="add" data-p="${p.id}">＋経緯を追加</button></div>`);
+    const delBox=canWrite&&p.delEv.length?`<details class="delbox"><summary>削除した経緯（${p.delEv.length}）</summary><ul style="list-style:none;padding:0;margin:0">${p.delEv.map(e=>`<li><span>${fmt(e.d)} ${esc(e.t)}</span><button class="bt" type="button" data-act="undel" data-k="${e.k}">戻す</button></li>`).join('')}</ul></details>`:'';
+    return `<details class="card ${p.done?'done':''}" data-id="${p.id}" ${openSet.has(p.id)?'open':''} style="--c:var(--c-${p.cat})"><summary><span class="tag">${CATS[p.cat]}</span><span class="t"><strong>${esc(p.name)}${p.done?`<span class="nw">完了</span>`:''}</strong><span>担当 ${esc(p.own)}</span></span><p class="st">${p.status}</p></summary>${wkHTML(p)}${ownBox}${sched}<ol class="ev">${hid?`<li style="display:block;color:var(--muted)">以前の経緯${hid}件は非表示です。上の「全期間を表示」で確認できます。</li>`:''}${items}</ol>${addBox}${delBox}</details>`;
+  }).join('')+(()=>{if(!canWrite)return '';const dl=P.filter(isDel);if(!dl.length)return '';
+    return `<details class="delbox" style="grid-column:1/-1"><summary>削除したプロジェクト（${dl.length}）</summary><ul style="list-style:none;padding:0;margin:0">${dl.map(p=>`<li><span>${esc((OV[kNm(p)]||{}).name||p.name)}</span><button class="bt" type="button" data-pact="undel" data-pid="${p.id}">戻す</button></li>`).join('')}</ul></details>`})();
+}
+function render(){setRange();$('#gantt').innerHTML=ganttHTML();$('#gantt').style.setProperty('--n',NM);$('#cards').innerHTML=cardsHTML();
+  document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.id==='allbtn'?showAll:c.dataset.k===filter));}
+
+// ---- 保存
+function save(k,val){
+  OV={...OV,[k]:val};render();
+  if(!ovRef)return;
+  const clean=()=>Object.fromEntries(Object.entries(OV).filter(([,v])=>v));
+  queue=queue.then(async()=>{
+    try{await ovRef.update({[k]:val})}
+    catch(e){try{await ovRef.set(clean())}catch(e2){setSync('保存できませんでした。しばらくしてからもう一度お試しください。')}}
+  });
+}
+function findItem(pid,k){const p=eff(P.find(x=>x.id===pid));return p.bars.find(b=>b.k===k)||p.ms.find(m=>m.k===k)}
+function ownerOf(k){return P.find(p=>{const e=eff(p);return e.bars.some(b=>b.k===k)||e.ms.some(m=>m.k===k)||e.ev.some(x=>x.k===k)})}
+function applyEdit(t,k,f,v,card){
+  if(!v)return;
+  const pid=card.dataset.id, p0=P.find(x=>x.id===pid), p=eff(p0);
+  if(t==='b'){const b=p.bars.find(x=>x.k===k);let from=b.from,to=b.to;
+    if(f==='from'){from=v;if(to<from)to=v}else{to=v;if(from>to)from=v}
+    save(k,{p:pid,l:b.l,from,to});return}
+  if(t==='m'){const m=p.ms.find(x=>x.k===k);save(k,{p:pid,l:m.l,d:v});return}
+  const e=p.ev.find(x=>x.k===k);
+  if(e.link){const [kind,label,fld,o]=e.link,nv=addDays(v,o);
+    if(kind==='b'){const b=p.bars.find(x=>x.l===label);let from=b.from,to=b.to;
+      if(fld==='from'){from=nv;if(to<from)to=nv}else{to=nv;if(from>to)from=nv}
+      save(b.k,{p:pid,l:b.l,from,to})}
+    else{const m=p.ms.find(x=>x.l===label);save(m.k,{p:pid,l:m.l,d:nv})}
+  }else if(e.added)saveAdd(k,{...AD[k],d:v});
+  else save(k,{...(OV[k]||{}),p:pid,od:e.od,t:e.ot.slice(0,40),d:v});
+}
+function setSync(t){$('#sync').textContent=t}
+function saveAdd(k,val){
+  AD={...AD,[k]:val};render();
+  if(!addRef)return;
+  queue=queue.then(async()=>{
+    try{await addRef.update({[k]:val})}
+    catch(e){try{await addRef.set(Object.fromEntries(Object.entries(AD).filter(([,v])=>v)))}catch(e2){setSync('保存できませんでした。しばらくしてからもう一度お試しください。')}}
+  });
+}
+const findEv=(pid,k)=>eff(P.find(x=>x.id===pid)).ev.concat(eff(P.find(x=>x.id===pid)).delEv).find(x=>x.k===k);
+const focusLater=id=>setTimeout(()=>{const n=document.getElementById(id);if(n){n.focus();n.setSelectionRange&&n.setSelectionRange(n.value.length,n.value.length)}},0);
+function onAct(b){
+  const act=b.dataset.act,card=b.closest('.card'),pid=card.dataset.id,k=b.dataset.k;
+  if(act==='edit'){const e=findEv(pid,k);editKey=k;editDraft=e.t;adding=null;render();focusLater('ed-ta');return}
+  if(act==='cancel'){editKey=null;render();return}
+  if(act==='save'){const t=editDraft.trim();if(!t)return;const e=findEv(pid,k);editKey=null;
+    if(e.added)saveAdd(k,{...AD[k],t});else save(k,{...(OV[k]||{}),p:pid,od:e.od,t:e.ot.slice(0,40),nt:t});return}
+  if(act==='del'){
+    if(armKey!==k){armKey=k;render();setTimeout(()=>{if(armKey===k){armKey=null;render()}},4000);return}
+    armKey=null;const e=findEv(pid,k);
+    if(e.added)saveAdd(k,null);else save(k,{...(OV[k]||{}),p:pid,od:e.od,t:e.ot.slice(0,40),del:true});return}
+  if(act==='undel'){save(k,{...(OV[k]||{}),del:false});return}
+  if(act==='txreset'){save(k,{...(OV[k]||{}),nt:null});return}
+  if(act==='add'){adding=b.dataset.p;adDraft={d:TODAY,t:''};editKey=null;render();focusLater('ad-t');return}
+  if(act==='addcancel'){adding=null;render();return}
+  if(act==='addsave'){const t=adDraft.t.trim();if(!t||!adDraft.d)return;
+    const id='a'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);adding=null;saveAdd(id,{p:b.dataset.p,d:adDraft.d,t});return}
+}
+$('#cards').addEventListener('change',e=>{const n=e.target.closest('input[data-nm]');if(n&&canWrite){
+  const p0=P.find(x=>x.id===n.dataset.nm),v=n.value.trim().slice(0,50),k=kNm(p0);
+  if(!v||v===p0.name)save(k,null);else save(k,{p:p0.id,name:v});return}});
+$('#cards').addEventListener('change',e=>{const w=e.target.closest('input[data-own]');if(w&&canWrite){
+  const p0=P.find(x=>x.id===w.dataset.own),v=w.value.trim().slice(0,30),k=kOwn(p0);
+  if(!v||v===p0.own)save(k,null);else save(k,{p:p0.id,own:v});return}});
+$('#cards').addEventListener('change',e=>{const i=e.target.closest('input[data-k]');if(!i||!canWrite)return;
+  applyEdit(i.dataset.t,i.dataset.k,i.dataset.f,i.value,i.closest('.card'))});
+$('#cards').addEventListener('click',e=>{if(!canWrite)return;
+  const pa=e.target.closest('[data-pact]');if(pa){const p0=P.find(x=>x.id===pa.dataset.pid),k=kDel(p0),ak='proj:'+p0.id;
+    if(pa.dataset.pact==='undel'){save(k,null);return}
+    if(pa.dataset.pact==='done'){const kd=kDone(p0);if((OV[kd]||{}).done)save(kd,null);else save(kd,{p:p0.id,done:true});return}
+    if(armKey!==ak){armKey=ak;render();setTimeout(()=>{if(armKey===ak){armKey=null;render()}},4000);return}
+    armKey=null;openSet.delete(p0.id);save(k,{p:p0.id,del:true});return}
+  const a=e.target.closest('[data-act]');if(a){onAct(a);return}
+  const b=e.target.closest('[data-reset]');if(!b)return;const k=b.dataset.reset,o=OV[k];
+  if(o&&(o.nt!=null||o.del))save(k,{...o,d:null});else save(k,null)});
+$('#cards').addEventListener('input',e=>{const t=e.target;
+  if(t.id==='ed-ta')editDraft=t.value;else if(t.id==='ad-t')adDraft.t=t.value});
+$('#cards').addEventListener('change',e=>{if(e.target.id==='ad-d')adDraft.d=e.target.value});
+$('#cards').addEventListener('toggle',e=>{const c=e.target;if(c.dataset&&c.dataset.id){c.open?openSet.add(c.dataset.id):openSet.delete(c.dataset.id)}},true);
+$('#chips').innerHTML=[['all','すべて']].concat(Object.entries(CATS)).map(([k,v])=>`<button class="chip" data-k="${k}" ${k==='all'?'':`style="--c:var(--c-${k})"`}>${k==='all'?'':'<i></i>'}${v}</button>`).join('');
+$('#chips').insertAdjacentHTML('beforeend','<button class="chip" id="allbtn" type="button" style="margin-left:8px">全期間を表示</button>');
+$('#chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;if(b.id==='allbtn')showAll=!showAll;else filter=b.dataset.k;render();});
+render();
+// 開いたままでも、日付が変わったら今日の線と過去の薄い表示を更新する
+setInterval(()=>{const t=todayStr();if(t!==TODAY){TODAY=t;render()}},60000);
+document.addEventListener('visibilitychange',()=>{const t=todayStr();if(!document.hidden&&t!==TODAY){TODAY=t;render()}});
+setSync('日程の変更を確認中です。');
+(async()=>{
+  const timer=setTimeout(()=>setSync('日程の変更を読み込めていません。表示は初期の日程です。'),10000);
+  let db=null,user=null;
+  try{db=await window.claude?.use('db');user=await window.claude?.use('user')}catch(e){}
+  if(!db){clearTimeout(timer);setSync('この表示では日程を変更できません。表示は初期の日程です。');return}
+  let can=null;try{can=user?await user.can('data.write'):null}catch(e){}
+  canWrite=can!==false;
+  ovRef=db.doc('timeline/overrides');addRef=db.doc('timeline/added');
+  setSync(canWrite?'各カードで、日程の変更、プロジェクト名・担当者の変更、経緯の追加・編集・削除、プロジェクトの完了・削除ができます。変更は全員に共有されます。':'公開用の閲覧専用ページです。内容は2026年11月9日時点のものです。');
+  addRef.onSnapshot(snap=>{AD=snap.exists?Object.fromEntries(Object.entries(snap.data()||{}).filter(([,v])=>v)):{};render()},()=>{});
+  ovRef.onSnapshot(snap=>{clearTimeout(timer);OV=snap.exists?Object.fromEntries(Object.entries(snap.data()||{}).filter(([,v])=>v)):{};render()},
+    err=>{clearTimeout(timer);setSync('日程の変更を読み込めませんでした。表示は初期の日程です。')});
+})();
+</script>
+
+</body></html>
