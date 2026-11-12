@@ -5,6 +5,7 @@
 <style>
 /* Layout: 横軸=2026年5月〜2027年5月の月、縦軸=プロジェクト。上にガント、下に日付つきの経緯カード。配色・書体・ロゴはGハウス公式HPに合わせる(2026-11)。 */
 :root{
+  --rk-r:#b8431f; --rk-y:#a5731b; --rk-g:#4d7a5e;
   --bg:#ffffff; --panel:#ffffff; --fg:#3d443f; --muted:#80867f; --line:#dddcdc; --grid:#eeeded;
   --now:#9a7633; --today:#303632;
   --c-new:#303632; --c-kit:#9a7633; --c-air:#5f7a68; --c-oth:#55697a; --c-gp:#c2571a;
@@ -15,9 +16,11 @@
   --f-mono:"IBM Plex Mono",ui-monospace,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --rk-r:#ee8a6a; --rk-y:#e3b25a; --rk-g:#8fb39e;
   --bg:#121312; --panel:#121312; --fg:#ecebe8; --muted:#9a9f9b; --line:#383b39; --grid:#262827;
   --now:#d4b274; --today:#ecebe8; --c-new:#e8e6e1; --c-kit:#d4b274; --c-air:#8fb39e; --c-oth:#9db3c1; --c-gp:#f5a23a; --on-c:#171817; --pm:20%; --pt:14%; --logo-l:none; --logo-d:block; color-scheme:dark}}
 :root[data-theme="dark"]{
+  --rk-r:#ee8a6a; --rk-y:#e3b25a; --rk-g:#8fb39e;
   --bg:#121312; --panel:#121312; --fg:#ecebe8; --muted:#9a9f9b; --line:#383b39; --grid:#262827;
   --now:#d4b274; --today:#ecebe8; --c-new:#e8e6e1; --c-kit:#d4b274; --c-air:#8fb39e; --c-oth:#9db3c1; --c-gp:#f5a23a; --on-c:#171817; --pm:20%; --pt:14%; --logo-l:none; --logo-d:block; color-scheme:dark}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-weight:400;letter-spacing:.02em;line-height:1.7;
@@ -122,6 +125,38 @@ h2{font-family:var(--f-head);font-weight:500;letter-spacing:.08em;font-size:1.15
 .wk details{font-size:.78rem;color:var(--muted)}
 .wk .nr{display:grid;grid-template-columns:minmax(0,1fr) 84px auto;gap:6px;align-items:center;padding-bottom:6px;border-bottom:1px dashed var(--grid)}
 .wk .nr .di{width:100%}
+/* 課題・リスク／資料・リンク */
+.rk,.fb{padding:10px 16px 12px;border-top:1px solid var(--grid);display:flex;flex-direction:column;gap:8px}
+.rk>*,.fb>*{min-width:0}
+.rk h4,.fb h4{margin:6px 0 2px;font:700 .72rem var(--f-body);color:var(--muted)}
+.rk ul,.fb ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+.rk li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 8px;font-size:.82rem;align-items:baseline}
+.sg{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:.72rem;white-space:nowrap}
+.sg::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
+.sg.r{color:var(--rk-r)}.sg.y{color:var(--rk-y)}.sg.g{color:var(--rk-g)}
+.rt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rt b{font-weight:700;line-height:1.5}
+.rt span{color:var(--muted);font-size:.78rem}
+.rr{display:flex;flex-direction:column;gap:5px;padding-bottom:8px;border-bottom:1px dashed var(--grid)}
+.rr1{display:grid;grid-template-columns:64px minmax(0,1fr) minmax(0,1fr) auto;gap:6px;align-items:center}
+.rr .di,.fb .di{width:100%}
+.shr{display:inline-flex;gap:6px;align-items:center;font-size:.76rem;color:var(--muted);cursor:pointer}
+.shr input{accent-color:var(--now)}
+.fb li{display:grid;grid-template-columns:88px minmax(0,1fr);gap:8px;align-items:baseline;font-size:.82rem}
+.fb li>span{min-width:0;overflow-wrap:anywhere}
+.ft{font:500 .66rem var(--f-body);text-align:center;border:1px solid var(--line);border-radius:2px;padding:1px 4px;color:var(--muted);white-space:nowrap}
+.ft.pdf{color:var(--rk-r);border-color:var(--rk-r)}.ft.doc{color:var(--rk-g);border-color:var(--rk-g)}.ft.link{color:var(--now);border-color:var(--now)}
+.fb a{color:var(--fg);text-decoration:underline;text-underline-offset:3px}
+.fb .ds{display:block;color:var(--muted);font-size:.74rem}
+.fb .nw{display:inline-block;margin:2px 0 0 6px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.thumbs figure{margin:0;display:flex;flex-direction:column;gap:3px;min-width:0}
+.thumbs img{width:100%;aspect-ratio:8/5;object-fit:cover;border:1px solid var(--line);border-radius:2px;display:block}
+.thumbs figcaption{font-size:.72rem;color:var(--muted);line-height:1.4;overflow-wrap:anywhere}
+.thumbs figcaption .nw{display:block;width:fit-content;margin:4px 0 0}
+.fadd{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+label.bt{display:inline-block}
+@media (max-width:560px){.rr1{grid-template-columns:64px minmax(0,1fr) auto}.rr1 input[data-rf="d"]{grid-column:1/3}}
 .wk .hint{font-size:.72rem;color:var(--muted);margin:2px 0 0}
 .wk .nr input[data-wf="nt"]{grid-column:1/-1}
 .nw{font:700 .62rem var(--f-body);color:var(--c);border:1px solid var(--c);border-radius:2px;padding:0 6px;margin-left:4px;white-space:nowrap}
@@ -136,6 +171,21 @@ h2{font-family:var(--f-head);font-weight:500;letter-spacing:.08em;font-size:1.15
 .mt th{font:700 .74rem var(--f-body);color:var(--muted);background:var(--bg)}
 .mt td:first-child{font:500 .82rem var(--f-mono);white-space:nowrap;color:var(--c-kit)}
 .mt tr:last-child td{border-bottom:0}
+.card[open]{grid-column:1/-1}
+.card[open] .st{max-width:80ch}
+.cb{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+.cb1,.cb2{min-width:0}
+.cb2{border-top:1px solid var(--grid)}
+.cb1>:first-child{border-top:1px solid var(--grid)}
+.cb2>:first-child{border-top:0}
+@media (min-width:900px){.cb2{border-top:0;border-left:1px solid var(--grid)}.cb1>:first-child{border-top:1px solid var(--grid)}.cb2>.ev:first-child{border-top:1px solid var(--grid)}}
+.goals{background:color-mix(in srgb,var(--fg) 5%,var(--panel));padding:18px 20px;display:flex;flex-direction:column;gap:16px;border-radius:2px}
+.glist{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px 22px;margin:0;padding:0;list-style:none}
+.glist li{display:flex;flex-direction:column;gap:2px;border-top:1px solid var(--line);padding-top:8px;min-width:0}
+.glist b{font-size:.84rem}.glist span{font-size:.78rem;color:var(--muted)}
+.glist em{font:500 .74rem var(--f-mono);font-style:normal;color:var(--now)}
+.levers{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:10px 22px;font-size:.8rem}
+.levers div{display:flex;gap:8px;min-width:0}.levers i{font:500 .72rem var(--f-mono);color:var(--now);font-style:normal;flex:none;padding-top:2px}
 .notes{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:16px 18px}
 .notes ul{margin:8px 0 0;padding-left:1.2em;font-size:.84rem;color:var(--muted);display:flex;flex-direction:column;gap:4px}
 @media (max-width:560px){.g-row{grid-template-columns:132px 1fr}.ev li{grid-template-columns:1fr}}
@@ -152,6 +202,25 @@ h2{font-family:var(--f-head);font-weight:500;letter-spacing:.08em;font-size:1.15
       <p class="sub">定例MTG資料（2026年5月1日〜11月5日の27回分）から作成。実線は実施済み、破線は予定。太い縦線は今日で、過ぎた部分は同じ色で薄く表示します。内容は資料の最新回（11/5）と、11月度報告（11/6時点）までです。</p>
     </div>
   </header>
+
+  <section style="display:flex;flex-direction:column;gap:12px" aria-labelledby="goalh">
+    <h2 id="goalh">部の目標と打ち手</h2>
+    <div class="goals">
+      <ul class="glist">
+        <li><b>スタイルブックの粗利改善</b><em>+30万円／棟</em><span>実績: 入力待ち</span></li>
+        <li><b>契約率アップ</b><em>30%（6か月）</em><span>現状 23.7%</span></li>
+        <li><b>オリジナルキッチン</b><em>2027年4月リリース目標</em><span>年間500台規模の想定</span></li>
+        <li><b>G-residence</b><em>2027年2月12日リリース</em><span>受注は月1棟が目標</span></li>
+        <li><b>新LACIE・SMART</b><em>12月11日リリース</em><span>仕様・価格は調整中</span></li>
+        <li><b>オリジナル換気・空調</b><em>2027年4月に商品化を判断</em><span>冬の測定を12月から再開</span></li>
+      </ul>
+      <div class="levers">
+        <div><i>1</i><span><b>粗利改善</b> 家具・家電・収納の拡充と、採用率・粗利実績に基づく改善</span></div>
+        <div><i>2</i><span><b>商品競争力</b> キッチン・G-residence・LACIE・空調・睡眠研究で新しい価値をつくる</span></div>
+        <div><i>3</i><span><b>商品化品質</b> 仕様・原価・施工・安全・保証・資料の整合性を保つ</span></div>
+      </div>
+    </div>
+  </section>
 
   <section style="display:flex;flex-direction:column;gap:12px" aria-label="全体タイムライン">
     <div class="bar-top">
@@ -221,11 +290,12 @@ h2{font-family:var(--f-head);font-weight:500;letter-spacing:.08em;font-size:1.15
   </section>
 </div>
 
-<script>const __OV={"b1vd9my0": {"from": "2026-11-05", "l": "仕様確定", "p": "dryer", "to": "2026-11-13"}, "bknz2xj": {"from": "2026-10-29", "l": "確認会・説明会", "p": "dryer", "to": "2026-11-10"}, "c7fcjts": {"done": true, "p": "cost"}, "cjco5e1": {"d": "2026-11-06", "done": true, "p": "hvac"}, "clxtg9r": {"d": "2026-11-06", "done": true, "p": "epc"}, "e98ygzd": {"d": "2026-11-13", "od": "2026-11-30", "p": "dryer", "t": "安全確認の結果をもとに、給気対策・仕様・売価・保証を確定。その後、正式な導入日を"}, "n1145r7b": {"name": "スタイルブック粗利改善　粗利＋30万/棟", "p": "sb"}, "n19kmpr": {"name": "オリジナル換気・全館空調システム（OEM・内製化）", "p": "vent"}, "n1iik3zq": {"name": "商品企画部 目標", "p": "corp"}, "n1v55l6o": {"name": "新LACIE（ラシエ）", "p": "lacie"}, "n4l8n6f": {"name": "G-residence（NoiseLess）", "p": "ng"}, "nly0tru": null, "ol0v7ih": {"own": "商品企画部", "p": "corp"}, "w1444uy7": {"next": [["2026-11-10", "11/10", "豊中オフィスのオーナーへ、試作室の使用許可をお願いに伺う（13時）"], ["2026-11-11", "11/11", "東京でエガー扉面・シゲルシンクの現物を確認"], ["2026-11-16", "11/16", "BLANCOシンクの現物確認"], ["2026-11-25", "11/25", "アイカ工業の工場見学（調整中）"], ["2026-12-20", "12/20頃", "詳細設計を完了"], ["2027-02-15", "27/2/15頃", "試作3セットを試作室へ搬入"]], "p": "oem", "wd": "2026-11-09", "wins": ["11/6に顧問（浅谷・益子）と開発工程を確認。次の工程に進む条件として、代表が承認した商品企画書が必須になった", "試作3セット（アイランド型・カップボードを含む）を2/15頃に搬入する日程で合意。詳細設計は12/20頃までに完了させる", "カウンターの試作素材はクレアサーフェイスに決定。ウルトラサーフェイスは見送り", "製造を始めるため、定款に「住宅設備機器の製造」の追加が必要。倉庫は委託でスモールスタートを検討"]}, "x60vm31": {"del": true, "p": "part"}, "xl0uxt6": {"del": true, "p": "corp"}};window.claude={use:async n=>n==='db'?{doc:p=>({onSnapshot:ok=>setTimeout(()=>ok(p.endsWith('added')?{exists:false,data:()=>({})}:{exists:true,data:()=>__OV}),0),update:async()=>{},set:async()=>{}})}:{can:async()=>false}};</script>
+<script>window.__PUB=true;const __D={"overrides": {"b1vd9my0": {"from": "2026-11-05", "l": "仕様確定", "p": "dryer", "to": "2026-11-13"}, "bknz2xj": {"from": "2026-10-29", "l": "確認会・説明会", "p": "dryer", "to": "2026-11-10"}, "c7fcjts": {"done": true, "p": "cost"}, "cjco5e1": {"d": "2026-11-06", "done": true, "p": "hvac"}, "clxtg9r": {"d": "2026-11-06", "done": true, "p": "epc"}, "e98ygzd": {"d": "2026-11-13", "od": "2026-11-30", "p": "dryer", "t": "安全確認の結果をもとに、給気対策・仕様・売価・保証を確定。その後、正式な導入日を"}, "n1145r7b": {"name": "スタイルブック粗利改善　粗利＋30万/棟", "p": "sb"}, "n19kmpr": {"name": "オリジナル換気・全館空調システム（OEM・内製化）", "p": "vent"}, "n1iik3zq": {"name": "商品企画部 目標", "p": "corp"}, "n1v55l6o": {"name": "新LACIE（ラシエ）", "p": "lacie"}, "n4l8n6f": {"name": "G-residence（NoiseLess）", "p": "ng"}, "nly0tru": null, "ol0v7ih": {"own": "商品企画部", "p": "corp"}, "w1444uy7": {"next": [["2026-11-10", "11/10", "豊中オフィスのオーナーへ、試作室の使用許可をお願いに伺う（13時）"], ["2026-11-11", "11/11", "東京でエガー扉面・シゲルシンクの現物を確認"], ["2026-11-16", "11/16", "BLANCOシンクの現物確認"], ["2026-11-25", "11/25", "アイカ工業の工場見学（調整中）"], ["2026-12-20", "12/20頃", "詳細設計を完了"], ["2027-02-15", "27/2/15頃", "試作3セットを試作室へ搬入"]], "p": "oem", "wd": "2026-11-09", "wins": ["11/6に顧問（浅谷・益子）と開発工程を確認。次の工程に進む条件として、代表が承認した商品企画書が必須になった", "試作3セット（アイランド型・カップボードを含む）を2/15頃に搬入する日程で合意。詳細設計は12/20頃までに完了させる", "カウンターの試作素材はクレアサーフェイスに決定。ウルトラサーフェイスは見送り", "製造を始めるため、定款に「住宅設備機器の製造」の追加が必要。倉庫は委託でスモールスタートを検討"]}, "x60vm31": {"del": true, "p": "part"}, "xl0uxt6": {"del": true, "p": "corp"}}, "risks": {"ng": [{"s": "y", "t": "ブランド名が未決", "a": "角山案・若狹案から2案に絞って検討する", "o": "西・若狹・髙濱", "d": "11/20", "sh": 1}, {"s": "y", "t": "施工事例が少なく、撮影済みの写真も少ない", "a": "CGで仮掲載し、完成後に実物へ差し替える", "o": "髙濱・西", "d": "完成後", "sh": 1}], "oem": [{"s": "y", "t": "ユーロ建て決済の方法が未確認", "a": "過去のドル建て送金の事例が、同じ方法で使えるか確認する", "o": "西", "d": "至急", "sh": 1}, {"s": "y", "t": "輸入材料の保管場所が未定", "a": "委託倉庫の候補を調べ、取引先の紹介も当たる", "o": "山根", "d": "年内", "sh": 1}]}, "files": {}};window.claude={use:async n=>n==='db'?{doc:p=>({onSnapshot:ok=>setTimeout(()=>{const k=p.split('/').pop(),d=__D[k];ok({exists:!!d,data:()=>d||{}})},0),update:async()=>{},set:async()=>{}})}:{can:async()=>false}};</script>
 <script>
 const START0=new Date('2026-05-01'), END=new Date('2027-07-01'), NOW='2026-11-13', NOTES_DATE='2026-10-30', COMPANY_NOTES_DATE='2026-11-12';
 let START=START0, span=END-START0, showAll=false, NM=14;
 function cutoff(){const t=new Date(TODAY);t.setUTCMonth(t.getUTCMonth()-2);return toISO(t)}
+function cutoffCard(){const t=new Date(TODAY);t.setUTCDate(t.getUTCDate()-14);return toISO(t)}
 function setRange(){if(showAll){START=START0}else{const t=new Date(cutoff());const m=new Date(Date.UTC(t.getUTCFullYear(),t.getUTCMonth(),1));START=m>START0?m:START0}span=END-START}
 const pct=d=>((new Date(d)-START)/span*100);
 const CATS={new:'新商品',kit:'キッチン',air:'空調・エネルギー',oth:'契約率アップ',gp:'粗利UP'};
@@ -604,6 +674,10 @@ let OV={}, AD={}, canWrite=false, ovRef=null, addRef=null, queue=Promise.resolve
 let adding=null, adDraft={d:'',t:''}, editKey=null, editDraft='', armKey=null;
 const openSet=new Set();
 let wkEdit=null;
+let RK={}, FL={}, rkRef=null, flRef=null, rkEdit=null, flAdd=null, ASSETS=null, syncMsg='';
+const IS_PUB=!!window.__PUB;
+const uid=()=>'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const okUrl=u=>/^https?:\/\//i.test(String(u||'').trim());
 
 function eff(p){
   const bars=p.bars.map(b=>{const o=OV[kBar(p,b)]||{};const from=o.from||b[0],to=o.to||b[1];
@@ -662,8 +736,38 @@ function wkHTML(p){
   const rest=p.wk.slice(1);
   return `<div class="wk">${one(p.wk[0],true)}${rest.length?`<details><summary>以前の週次（${rest.length}週）</summary>${rest.map(w=>one(w,false)).join('')}</details>`:''}</div>`;
 }
+const RKL={r:'赤',y:'黄',g:'緑'};
+const shTag=sh=>IS_PUB?'':`<span class="nw">${sh?'顧問に共有':'部内のみ'}</span>`;
+function rkHTML(p){
+  const items=RK[p.id]||[];
+  if(!items.length&&!canWrite)return '';
+  if(canWrite&&rkEdit&&rkEdit.pid===p.id){
+    const rows=rkEdit.items.map((r,i)=>`<div class="rr"><div class="rr1"><select class="di" data-rf="s" data-i="${i}" aria-label="状態"><option value="r"${r.s==='r'?' selected':''}>赤</option><option value="y"${r.s==='y'?' selected':''}>黄</option><option value="g"${r.s==='g'?' selected':''}>緑</option></select><input class="di" type="text" maxlength="14" value="${esc(r.o)}" placeholder="担当" data-rf="o" data-i="${i}" aria-label="担当"><input class="di" type="text" maxlength="14" value="${esc(r.d)}" placeholder="期限" data-rf="d" data-i="${i}" aria-label="期限"><button class="bt dg" type="button" data-ract="rm" data-i="${i}">削除</button></div><input class="di" type="text" maxlength="120" value="${esc(r.t)}" placeholder="課題" data-rf="t" data-i="${i}" aria-label="課題"><input class="di" type="text" maxlength="160" value="${esc(r.a)}" placeholder="対策案" data-rf="a" data-i="${i}" aria-label="対策案"><label class="shr"><input type="checkbox" data-rf="sh" data-i="${i}"${r.sh?' checked':''}> 顧問に共有する（公開版に載せる）</label></div>`).join('');
+    return `<div class="rk"><h4>課題・リスク</h4>${rows}<div class="ac"><button class="bt" type="button" data-ract="add">＋課題を追加</button></div><div class="ac"><button class="bt pr" type="button" data-ract="save">保存</button><button class="bt" type="button" data-ract="cancel">キャンセル</button></div></div>`;
+  }
+  const list=items.length?`<ul>${items.map(r=>`<li><span class="sg ${esc(r.s)}">${RKL[r.s]||''}</span><div class="rt"><b>${esc(r.t)}</b>${r.a?`<span>対策案: ${esc(r.a)}</span>`:''}<span>担当 ${esc(r.o||'未定')} ／ 期限 ${esc(r.d||'未定')}${shTag(r.sh)}</span></div></li>`).join('')}</ul>`:'';
+  return `<div class="rk"><h4>課題・リスク</h4>${list}${canWrite?`<div class="ac"><button class="bt" type="button" data-ract="edit">${items.length?'課題・リスクを編集':'＋課題・リスクを追加'}</button></div>`:''}</div>`;
+}
+function flHTML(p){
+  const items=FL[p.id]||[];
+  if(!items.length&&!canWrite)return '';
+  const T={link:'リンク',doc:'ドキュメント',pdf:'PDF',file:'ファイル'};
+  const ctl=f=>canWrite?`<span class="ac"><label class="shr"><input type="checkbox" data-fsh="${esc(f.id)}"${f.sh?' checked':''}> 顧問に共有</label><button class="bt dg" type="button" data-fact="rm" data-id="${esc(f.id)}">${armKey==='f:'+f.id?'本当に削除':'削除'}</button></span>`:'';
+  const imgs=items.filter(f=>f.k==='img'),oth=items.filter(f=>f.k!=='img');
+  const ol=oth.length?`<ul>${oth.map(f=>`<li><span class="ft ${esc(f.k)}">${T[f.k]||'ファイル'}</span><span>${f.u?`<a href="${esc(f.u)}" target="_blank" rel="noopener">${esc(f.ti)}</a>`:esc(f.ti)}${shTag(f.sh)}${f.ds?`<span class="ds">${esc(f.ds)}</span>`:''}${ctl(f)}</span></li>`).join('')}</ul>`:'';
+  const il=imgs.length?`<div class="thumbs">${imgs.map(f=>`<figure><a href="${esc(f.u)}" target="_blank" rel="noopener"><img src="${esc(f.u)}" alt="${esc(f.ti)}" loading="lazy"></a><figcaption>${esc(f.ti)}${f.ds?'<br>'+esc(f.ds):''}${shTag(f.sh)}${ctl(f)}</figcaption></figure>`).join('')}</div>`:'';
+  let form='';
+  if(canWrite){
+    if(flAdd&&flAdd.pid===p.id){
+      form=`<div class="fadd"><select class="di" data-ff="k" aria-label="種類"><option value="link"${flAdd.k==='link'?' selected':''}>リンク</option><option value="doc"${flAdd.k==='doc'?' selected':''}>ドキュメント（Googleドライブなど）</option><option value="pdf"${flAdd.k==='pdf'?' selected':''}>PDF（リンク）</option></select><input class="di" type="text" maxlength="80" value="${esc(flAdd.ti)}" placeholder="タイトル" data-ff="ti" aria-label="タイトル"><input class="di" type="text" maxlength="500" value="${esc(flAdd.u)}" placeholder="https://..." data-ff="u" aria-label="URL"><input class="di" type="text" maxlength="100" value="${esc(flAdd.ds)}" placeholder="補足（任意）" data-ff="ds" aria-label="補足"><div class="ac"><button class="bt pr" type="button" data-fact="addsave">追加</button><button class="bt" type="button" data-fact="addcancel">キャンセル</button></div></div>`;
+    }else{
+      form=`<div class="ac"><button class="bt" type="button" data-fact="addlink">＋リンクを追加</button>${ASSETS?`<label class="bt">＋画像・PDFをアップロード<input type="file" data-fup="${esc(p.id)}" accept="image/*,.pdf,.csv,.txt" hidden></label>`:''}</div>`;
+    }
+  }
+  return `<div class="fb"><h4>資料・リンク</h4>${ol}${il}${form}</div>`;
+}
 function cardsHTML(){
-  const C0=showAll?'0000-00-00':cutoff();
+  const C0=showAll?'0000-00-00':cutoffCard();
   return P.filter(p=>!isDel(p)&&(filter==='all'||p.cat===filter)).map(eff).map(p=>{
     const vb=p.bars.filter(b=>b.to>=C0),vm=p.ms.filter(m=>m.d>=C0);const sched=(vb.length||vm.length)?`<div class="sched"><h4>タイムラインの日程</h4>`+
       vb.map(b=>`<div class="sr ${b.chg?'chg':''} ${b.to<TODAY?'past':''}"><span class="sl">${esc(b.l)}</span><span class="sd"><input class="di" type="date" ${dis()} value="${b.from}" data-t="b" data-k="${b.k}" data-f="from" aria-label="${esc(b.l)} 開始日"> 〜 <input class="di" type="date" ${dis()} value="${b.to}" data-t="b" data-k="${b.k}" data-f="to" aria-label="${esc(b.l)} 終了日">${rs(b.k,b.chg)}</span></div>`).join('')+
@@ -681,7 +785,7 @@ function cardsHTML(){
       ?`<div class="addbox"><input class="di" id="ad-d" type="date" value="${adDraft.d}" aria-label="追加する経緯の日付"><textarea class="ta" id="ad-t" rows="3" maxlength="400" placeholder="経緯の内容">${esc(adDraft.t)}</textarea><div class="ac"><button class="bt pr" type="button" data-act="addsave" data-p="${p.id}">追加</button><button class="bt" type="button" data-act="addcancel">キャンセル</button></div></div>`
       :`<div class="addbox"><button class="bt" type="button" data-act="add" data-p="${p.id}">＋経緯を追加</button></div>`);
     const delBox=canWrite&&p.delEv.length?`<details class="delbox"><summary>削除した経緯（${p.delEv.length}）</summary><ul style="list-style:none;padding:0;margin:0">${p.delEv.map(e=>`<li><span>${fmt(e.d)} ${esc(e.t)}</span><button class="bt" type="button" data-act="undel" data-k="${e.k}">戻す</button></li>`).join('')}</ul></details>`:'';
-    return `<details class="card ${p.done?'done':''}" data-id="${p.id}" ${openSet.has(p.id)?'open':''} style="--c:var(--c-${p.cat})"><summary><span class="tag">${CATS[p.cat]}</span><span class="t"><strong>${esc(p.name)}${p.done?`<span class="nw">完了</span>`:''}</strong><span>担当 ${esc(p.own)}</span></span><p class="st">${p.status}</p></summary>${wkHTML(p)}${ownBox}${sched}<ol class="ev">${hid?`<li style="display:block;color:var(--muted)">以前の経緯${hid}件は非表示です。上の「全期間を表示」で確認できます。</li>`:''}${items}</ol>${addBox}${delBox}</details>`;
+    return `<details class="card ${p.done?'done':''}" data-id="${p.id}" ${openSet.has(p.id)?'open':''} style="--c:var(--c-${p.cat})"><summary><span class="tag">${CATS[p.cat]}</span><span class="t"><strong>${esc(p.name)}${p.done?`<span class="nw">完了</span>`:''}</strong><span>担当 ${esc(p.own)}</span></span><p class="st">${p.status}</p></summary><div class="cb"><div class="cb1">${wkHTML(p)}${rkHTML(p)}${flHTML(p)}${ownBox}${sched}</div><div class="cb2"><ol class="ev">${hid?`<li style="display:block;color:var(--muted)">以前の経緯${hid}件は非表示です。上の「全期間を表示」で確認できます。</li>`:''}${items}</ol>${addBox}${delBox}</div></div></details>`;
   }).join('')+(()=>{if(!canWrite)return '';const dl=P.filter(isDel);if(!dl.length)return '';
     return `<details class="delbox" style="grid-column:1/-1"><summary>削除したプロジェクト（${dl.length}）</summary><ul style="list-style:none;padding:0;margin:0">${dl.map(p=>`<li><span>${esc((OV[kNm(p)]||{}).name||p.name)}</span><button class="bt" type="button" data-pact="undel" data-pid="${p.id}">戻す</button></li>`).join('')}</ul></details>`})();
 }
@@ -752,6 +856,37 @@ $('#cards').addEventListener('change',e=>{const w=e.target.closest('input[data-o
   if(!v||v===p0.own)save(k,null);else save(k,{p:p0.id,own:v});return}});
 $('#cards').addEventListener('change',e=>{const i=e.target.closest('input[data-k]');if(!i||!canWrite)return;
   applyEdit(i.dataset.t,i.dataset.k,i.dataset.f,i.value,i.closest('.card'))});
+function saveRk(pid,items){
+  RK={...RK,[pid]:items};render();
+  if(!rkRef)return;
+  queue=queue.then(async()=>{try{await rkRef.update({[pid]:items})}catch(e){try{await rkRef.set({...RK})}catch(e2){setSync('保存できませんでした。しばらくしてからもう一度お試しください。')}}});
+}
+function saveFl(pid,items){
+  FL={...FL,[pid]:items};render();
+  if(!flRef)return;
+  queue=queue.then(async()=>{try{await flRef.update({[pid]:items})}catch(e){try{await flRef.set({...FL})}catch(e2){setSync('保存できませんでした。しばらくしてからもう一度お試しください。')}}});
+}
+function onRact(b){
+  const act=b.dataset.ract,pid=b.closest('.card').dataset.id;
+  if(act==='edit'){rkEdit={pid,items:(RK[pid]||[]).map(x=>({s:x.s||'y',t:x.t||'',a:x.a||'',o:x.o||'',d:x.d||'',sh:x.sh?1:0}))};
+    if(!rkEdit.items.length)rkEdit.items.push({s:'y',t:'',a:'',o:'',d:'',sh:0});render();return}
+  if(!rkEdit)return;
+  if(act==='add'){if(rkEdit.items.length<12)rkEdit.items.push({s:'y',t:'',a:'',o:'',d:'',sh:0});render();return}
+  if(act==='rm'){rkEdit.items.splice(+b.dataset.i,1);render();return}
+  if(act==='cancel'){rkEdit=null;render();return}
+  if(act==='save'){const items=rkEdit.items.filter(r=>r.t.trim()).map(r=>({s:r.s,t:r.t.trim().slice(0,120),a:r.a.trim().slice(0,160),o:r.o.trim().slice(0,14),d:r.d.trim().slice(0,14),sh:r.sh?1:0}));rkEdit=null;saveRk(pid,items);return}
+}
+function onFact(b){
+  const act=b.dataset.fact,card=b.closest('.card'),pid=card.dataset.id;
+  if(act==='addlink'){flAdd={pid,k:'link',ti:'',u:'',ds:''};render();return}
+  if(act==='addcancel'){flAdd=null;render();return}
+  if(act==='addsave'){if(!flAdd)return;const ti=flAdd.ti.trim(),u=flAdd.u.trim();
+    if(!ti||!okUrl(u)){setSync('タイトルと、https:// で始まるURLを入力してください。');return}
+    const item={id:uid(),k:flAdd.k,ti:ti.slice(0,80),u:u.slice(0,500),ds:flAdd.ds.trim().slice(0,100),sh:0};flAdd=null;saveFl(pid,[...(FL[pid]||[]),item]);return}
+  if(act==='rm'){const id=b.dataset.id,ak='f:'+id;
+    if(armKey!==ak){armKey=ak;render();setTimeout(()=>{if(armKey===ak){armKey=null;render()}},4000);return}
+    armKey=null;saveFl(pid,(FL[pid]||[]).filter(f=>f.id!==id));return}
+}
 function onWact(b){
   const act=b.dataset.wact,card=b.closest('.card'),pid=card.dataset.id,p0=P.find(x=>x.id===pid);
   if(act==='edit'){const w0=p0.wk.find(x=>x.d===b.dataset.wd),o=OV[b.dataset.wk]||{};
@@ -776,14 +911,30 @@ $('#cards').addEventListener('click',e=>{if(!canWrite)return;
     if(pa.dataset.pact==='done'){const kd=kDone(p0);if((OV[kd]||{}).done)save(kd,null);else save(kd,{p:p0.id,done:true});return}
     if(armKey!==ak){armKey=ak;render();setTimeout(()=>{if(armKey===ak){armKey=null;render()}},4000);return}
     armKey=null;openSet.delete(p0.id);save(k,{p:p0.id,del:true});return}
+  const ra=e.target.closest('[data-ract]');if(ra){onRact(ra);return}
+  const fa=e.target.closest('[data-fact]');if(fa){onFact(fa);return}
   const wa=e.target.closest('[data-wact]');if(wa){onWact(wa);return}
   const a=e.target.closest('[data-act]');if(a){onAct(a);return}
   const b=e.target.closest('[data-reset]');if(!b)return;const k=b.dataset.reset,o=OV[k];
   if(o&&(o.nt!=null||o.del))save(k,{...o,d:null});else save(k,null)});
 $('#cards').addEventListener('input',e=>{const t=e.target;
   if(t.id==='ed-ta')editDraft=t.value;else if(t.id==='ad-t')adDraft.t=t.value;
+  else if(rkEdit&&t.dataset&&t.dataset.rf){const r=rkEdit.items[+t.dataset.i];if(r)r[t.dataset.rf]=t.type==='checkbox'?(t.checked?1:0):t.value}
+  else if(flAdd&&t.dataset&&t.dataset.ff){flAdd[t.dataset.ff]=t.value}
   else if(wkEdit&&t.dataset&&t.dataset.wf){const f=t.dataset.wf;if(f==='wins')wkEdit.wins=t.value;else{const n=wkEdit.next[+t.dataset.i];if(n)n[{nd:'d',nl:'l',nt:'t'}[f]]=t.value}}});
 $('#cards').addEventListener('change',e=>{if(e.target.id==='ad-d')adDraft.d=e.target.value});
+$('#cards').addEventListener('change',e=>{const t=e.target;if(!canWrite)return;
+  if(rkEdit&&t.dataset&&t.dataset.rf){const r=rkEdit.items[+t.dataset.i];if(r)r[t.dataset.rf]=t.type==='checkbox'?(t.checked?1:0):t.value;return}
+  if(flAdd&&t.dataset&&t.dataset.ff){flAdd[t.dataset.ff]=t.value;return}
+  if(t.dataset&&t.dataset.fsh){const pid=t.closest('.card').dataset.id;saveFl(pid,(FL[pid]||[]).map(f=>f.id===t.dataset.fsh?{...f,sh:t.checked?1:0}:f))}});
+$('#cards').addEventListener('change',async e=>{const i=e.target.closest('input[data-fup]');if(!i||!canWrite||!ASSETS)return;
+  const f=i.files&&i.files[0];if(!f)return;const pid=i.dataset.fup;
+  if(f.size>20*1024*1024){setSync('20MBを超えるファイルはアップロードできません。');i.value='';return}
+  setSync('アップロード中です。');
+  try{const r=await ASSETS.upload(f);const ct=r.contentType||f.type||'';const k=ct.startsWith('image/')?'img':(ct==='application/pdf'?'pdf':'file');
+    saveFl(pid,[...(FL[pid]||[]),{id:uid(),k,ti:f.name.slice(0,80),u:r.url,aid:r.id,ds:'',sh:0}]);setSync('アップロードしました。');
+  }catch(err){setSync('アップロードできませんでした。権限とファイルの種類を確認してください。')}
+  setTimeout(()=>setSync(syncMsg),4000)});
 $('#cards').addEventListener('toggle',e=>{const c=e.target;if(c.dataset&&c.dataset.id){c.open?openSet.add(c.dataset.id):openSet.delete(c.dataset.id)}},true);
 $('#chips').innerHTML=[['all','すべて']].concat(Object.entries(CATS)).map(([k,v])=>`<button class="chip" data-k="${k}" ${k==='all'?'':`style="--c:var(--c-${k})"`}>${k==='all'?'':'<i></i>'}${v}</button>`).join('');
 $('#chips').insertAdjacentHTML('beforeend','<button class="chip" id="allbtn" type="button" style="margin-left:8px">全期間を表示</button>');
@@ -801,12 +952,18 @@ setSync('日程の変更を確認中です。');
   let can=null;try{can=user?await user.can('data.write'):null}catch(e){}
   canWrite=can!==false;
   ovRef=db.doc('timeline/overrides');addRef=db.doc('timeline/added');
-  setSync(canWrite?'各カードで、日程の変更、プロジェクト名・担当者の変更、経緯の追加・編集・削除、今週の進捗と次のアクションの編集、プロジェクトの完了・削除ができます。変更は全員に共有されます。':'公開用の閲覧専用ページです。内容は2026年11月12日時点のものです。');
+  syncMsg=canWrite?'各カードで、日程の変更、プロジェクト名・担当者の変更、経緯の追加・編集・削除、今週の進捗と次のアクションの編集、課題・リスクと資料・リンクの追加、プロジェクトの完了・削除ができます。変更は全員に共有されます。':'公開用の閲覧専用ページです。内容は2026年11月12日時点のものです。';
+  setSync(syncMsg);
+  rkRef=db.doc('timeline/risks');flRef=db.doc('timeline/files');
+  rkRef.onSnapshot(snap=>{RK=snap.exists?(snap.data()||{}):{};render()},()=>{});
+  flRef.onSnapshot(snap=>{FL=snap.exists?(snap.data()||{}):{};render()},()=>{});
+  if(canWrite){try{window.claude?.use('assets').then(a=>{ASSETS=a||null;render()}).catch(()=>{})}catch(e){}}
   addRef.onSnapshot(snap=>{AD=snap.exists?Object.fromEntries(Object.entries(snap.data()||{}).filter(([,v])=>v)):{};render()},()=>{});
   ovRef.onSnapshot(snap=>{clearTimeout(timer);OV=snap.exists?Object.fromEntries(Object.entries(snap.data()||{}).filter(([,v])=>v)):{};render()},
     err=>{clearTimeout(timer);setSync('日程の変更を読み込めませんでした。表示は初期の日程です。')});
 })();
 </script>
+
 
 
 
