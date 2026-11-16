@@ -218,6 +218,19 @@ label.bt{display:inline-block}
 .gedit .di{width:100%;font:.8rem var(--f-body);padding:5px 6px}
 .gedit .hint{font-size:.74rem;color:var(--muted);margin:0}
 @media (max-width:640px){.gr,.gr.lv{grid-template-columns:minmax(0,1fr) auto}.gr .di:first-child,.gr.lv .di:first-child{grid-column:1/-1}}
+.schadd{display:flex;flex-direction:column;gap:6px;padding:8px 0 4px;border-top:1px dashed var(--grid);margin-top:4px}
+.schadd .sk{display:flex;gap:14px;font-size:.78rem}
+.schadd .sk label{display:inline-flex;gap:5px;align-items:center;cursor:pointer}
+.schadd .sk input{accent-color:var(--now)}
+.schadd>.di{width:100%;max-width:320px}
+.schadd .sd .di{width:132px}
+.g-tog{min-height:0}
+.g-tl{grid-column:1/-1;position:sticky;left:0;padding:8px 12px;background:var(--panel);z-index:2;width:fit-content}
+.gtb{white-space:nowrap}
+.gtb{font:500 .74rem var(--f-body);color:var(--muted);background:none;border:1px solid var(--line);border-radius:2px;padding:3px 8px;cursor:pointer;text-align:left;display:inline-flex;gap:8px;align-items:center;width:fit-content}
+.gtb span{font-weight:700;color:var(--now)}
+.gtb:hover{border-color:var(--fg)}
+.gtb:focus-visible{outline:2px solid var(--now);outline-offset:2px}
 .notes{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:16px 18px}
 .notes ul{margin:8px 0 0;padding-left:1.2em;font-size:.84rem;color:var(--muted);display:flex;flex-direction:column;gap:4px}
 @media (max-width:560px){.g-row{grid-template-columns:132px 1fr}.ev li{grid-template-columns:1fr}}
@@ -725,11 +738,28 @@ const IS_PUB=!!window.__PUB;
 const uid=()=>'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const okUrl=u=>/^https?:\/\//i.test(String(u||'').trim());
 
+let schAdd=null;
+const sdel=x=>x.add&&canWrite?`<button class="rs" type="button" data-sact="del" data-k="${x.k}" data-l="${esc(x.l)}">削除</button>`:'';
+function schForm(p){
+  if(!canWrite)return '';
+  if(!schAdd||schAdd.pid!==p.id)return `<div><button class="bt" type="button" data-sact="open" data-pid="${p.id}">＋日程を追加</button></div>`;
+  const a=schAdd,isB=a.kind==='b';
+  return `<div class="schadd"><div class="sk"><label><input type="radio" name="sk-${p.id}" data-sf="kind" value="b" ${isB?'checked':''}> 期間（バー）</label><label><input type="radio" name="sk-${p.id}" data-sf="kind" value="m" ${isB?'':'checked'}> 節目（◆）</label></div>
+  <input class="di" data-sf="l" value="${esc(a.l)}" placeholder="名前（例: 第3試作）" aria-label="日程の名前" maxlength="40">
+  <span class="sd"><input class="di" type="date" data-sf="from" value="${a.from}" aria-label="${isB?'開始日':'日付'}">${isB?` 〜 <input class="di" type="date" data-sf="to" value="${a.to}" aria-label="終了日">`:''}</span>
+  ${a.err?`<p class="hint" style="color:var(--rk-r);margin:0">${esc(a.err)}</p>`:''}
+  <div class="ac"><button class="bt pr" type="button" data-sact="save">追加</button><button class="bt" type="button" data-sact="cancel">キャンセル</button></div></div>`;
+}
 function eff(p){
   const bars=p.bars.map(b=>{const o=OV[kBar(p,b)]||{};const from=o.from||b[0],to=o.to||b[1];
     return {k:kBar(p,b),l:b[2],s:b[3],from,to,chg:from!==b[0]||to!==b[1]}});
   const ms=p.ms.map(m=>{const o=OV[kMs(p,m)]||{};const d=o.d||m[0];
     return {k:kMs(p,m),l:m[1],s:m[2],d,chg:d!==m[0]}});
+  // 画面で追加した日程（overrides の 'sa'＋ID。{p,sa:'b'|'m',l,from,to|d}）。予定か実施済みかは日付から決める
+  Object.entries(OV).forEach(([k,v])=>{if(!v||!v.sa||v.p!==p.id||!v.l)return;
+    if(v.sa==='b'&&v.from&&v.to)bars.push({k,l:v.l,s:v.to<TODAY?'d':'p',from:v.from,to:v.to,chg:false,add:true});
+    else if(v.sa==='m'&&v.d)ms.push({k,l:v.l,s:v.d<TODAY?'d':'p',d:v.d,chg:false,add:true})});
+  bars.sort((a,b)=>a.from<b.from?-1:a.from>b.from?1:0);ms.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
   const evAll=p.ev.map(e=>{
     const link=e[2];let d=e[0];const o=OV[kEv(p,e)]||{};
     if(link){const t=link[0]==='b'?bars.find(x=>x.l===link[1]):ms.find(x=>x.l===link[1]);
@@ -746,10 +776,12 @@ function eff(p){
   const dn=OV[kDone(p)]||{};
   return {...p,done:!!dn.done,doneD:dn.d||'',name,nameK:kNm(p),nameChg:name!==p.name,own,ownK:kOwn(p),ownChg:own!==p.own,bars,ms,ev,delEv};
 }
+let gDoneOpen=false;try{gDoneOpen=localStorage.getItem('pjtl-gdone')==='1'}catch(e){}
 function ganttHTML(){
   const S0=toISO(START);const mons=[];for(let d=new Date(START);d<END;d.setUTCMonth(d.getUTCMonth()+1))mons.push([d.getUTCFullYear(),d.getUTCMonth()+1]);NM=mons.length;
   const head=`<div class="g-row g-head"><div class="g-label" style="border-bottom:0"><small style="padding:0">${START.getUTCFullYear()}年${START.getUTCMonth()+1}月 → 2027年6月</small></div><div class="g-track" style="min-height:0;background:none"><div class="g-months">${mons.map(([y,m],i)=>`<div class="${m===1||i===0?'y':''}">${i===0||m===1?String(y).slice(2)+'/':''}${m}月</div>`).join('')}</div></div></div>`;
-  const rows=P.filter(p=>!isDel(p)&&(filter==='all'||p.cat===filter)).map(eff).map(p=>{
+  const effs=P.filter(p=>!isDel(p)&&(filter==='all'||p.cat===filter)).map(eff),nDone=effs.filter(p=>p.done).length;
+  const rows=effs.filter(p=>!p.done).concat(gDoneOpen?effs.filter(p=>p.done):[]).map(p=>{
     const bars=p.bars.filter(b=>b.to>=S0).map(b=>{const l=clamp(pct(b.from)),w=Math.max(.6,clamp(pct(b.to))-l);
       const f=Math.round(100*(new Date(TODAY)-new Date(b.from))/(new Date(b.to)-new Date(b.from)));
       const st=b.to<=TODAY?'past':(f>0&&b.from<TODAY?'pp':'');
@@ -759,7 +791,8 @@ function ganttHTML(){
     return `<div class="g-row ${p.done?'done':''}" style="--c:var(--c-${p.cat})"><div class="g-label"><b><i></i>${esc(p.name)}${p.done?`<span class="nw">完了</span>`:''}</b><small>担当 ${esc(p.own)}</small></div><div class="g-track">${bars}${ms}${msl}</div></div>`;
   }).join('');
   const nx=pct(TODAY);
-  return head+rows+(nx>=0&&nx<=100?`<div style="position:absolute;left:188px;right:0;top:0;bottom:0;pointer-events:none"><div class="nowline" style="left:${nx}%"></div><div class="nowtag" style="left:${nx}%">今日 ${fmt(TODAY)}</div></div>`:'');
+  const tog=!nDone?'':`<div class="g-row g-tog"><div class="g-tl"><button class="gtb" type="button" data-gdone aria-expanded="${gDoneOpen}">完了したプロジェクト（${nDone}）<span>${gDoneOpen?'閉じる':'開く'}</span></button></div></div>`;
+  return head+rows.replace(/(<div class="g-row done)/,tog+'$1')+(gDoneOpen?'':tog)+(nx>=0&&nx<=100?`<div style="position:absolute;left:188px;right:0;top:0;bottom:0;pointer-events:none"><div class="nowline" style="left:${nx}%"></div><div class="nowtag" style="left:${nx}%">今日 ${fmt(TODAY)}</div></div>`:'');
 }
 const dis=()=>canWrite?'':'disabled';
 const rs=(k,on)=>on&&canWrite?`<button class="rs" data-reset="${k}" type="button">元に戻す</button>`:'';
@@ -831,9 +864,9 @@ const openIdsHasDone=dn=>dn.some(x=>/data-id="([^"]+)"/.test(x.h)&&openSet.has(R
 function cardsHTML(){
   const C0=showAll?'0000-00-00':cutoffCard();
   const cardsArr=P.filter(p=>!isDel(p)&&(filter==='all'||p.cat===filter)).map(eff).map(p=>{
-    const vb=p.bars.filter(b=>b.to>=C0),vm=p.ms.filter(m=>m.d>=C0);const sched=(vb.length||vm.length)?`<div class="sched"><h4>タイムラインの日程</h4>`+
-      vb.map(b=>`<div class="sr ${b.chg?'chg':''} ${b.to<TODAY?'past':''}"><span class="sl">${esc(b.l)}</span><span class="sd"><input class="di" type="date" ${dis()} value="${b.from}" data-t="b" data-k="${b.k}" data-f="from" aria-label="${esc(b.l)} 開始日"> 〜 <input class="di" type="date" ${dis()} value="${b.to}" data-t="b" data-k="${b.k}" data-f="to" aria-label="${esc(b.l)} 終了日">${rs(b.k,b.chg)}</span></div>`).join('')+
-      vm.map(m=>`<div class="sr ${m.chg?'chg':''} ${m.d<TODAY?'past':''}"><span class="sl">◆ ${esc(m.l)}</span><span class="sd"><input class="di" type="date" ${dis()} value="${m.d}" data-t="m" data-k="${m.k}" data-f="d" aria-label="${esc(m.l)} の日付">${rs(m.k,m.chg)}</span></div>`).join('')+`</div>`:'';
+    const vb=p.bars.filter(b=>b.to>=C0),vm=p.ms.filter(m=>m.d>=C0);const sched=(vb.length||vm.length||canWrite)?`<div class="sched"><h4>タイムラインの日程</h4>`+
+      vb.map(b=>`<div class="sr ${b.chg?'chg':''} ${b.to<TODAY?'past':''}"><span class="sl">${esc(b.l)}</span><span class="sd"><input class="di" type="date" ${dis()} value="${b.from}" data-t="b" data-k="${b.k}" data-f="from" aria-label="${esc(b.l)} 開始日"> 〜 <input class="di" type="date" ${dis()} value="${b.to}" data-t="b" data-k="${b.k}" data-f="to" aria-label="${esc(b.l)} 終了日">${rs(b.k,b.chg)}${sdel(b)}</span></div>`).join('')+
+      vm.map(m=>`<div class="sr ${m.chg?'chg':''} ${m.d<TODAY?'past':''}"><span class="sl">◆ ${esc(m.l)}</span><span class="sd"><input class="di" type="date" ${dis()} value="${m.d}" data-t="m" data-k="${m.k}" data-f="d" aria-label="${esc(m.l)} の日付">${rs(m.k,m.chg)}${sdel(m)}</span></div>`).join('')+schForm(p)+`</div>`:'';
     const evV=p.ev.filter(e=>e.d>=C0),hid=p.ev.length-evV.length;const evL=evV.map(e=>{
       const rk=e.link?(e.link[0]==='b'?p.bars.find(x=>x.l===e.link[1]).k:p.ms.find(x=>x.l===e.link[1]).k):e.k;
       const dateCell=`<span class="dwrap"><input class="di" type="date" ${dis()} value="${e.d}" data-t="e" data-k="${e.k}" data-f="d" aria-label="日付"> ${e.added?'':rs(rk,e.chg)}</span>`;
@@ -926,6 +959,23 @@ function fixLabels(){
 }
 window.addEventListener('resize',()=>fixLabels());
 try{document.fonts&&document.fonts.ready.then(()=>fixLabels())}catch(e){}
+$('#cards').addEventListener('click',e=>{const b=e.target.closest('[data-sact]');if(!b||!canWrite)return;const a=b.dataset.sact;
+  if(a==='open'){schAdd={pid:b.dataset.pid,kind:'b',l:'',from:'',to:'',err:''};render();const f=document.querySelector('.schadd [data-sf=l]');f&&f.focus();return}
+  if(a==='cancel'){schAdd=null;render();return}
+  if(a==='del'){if(!confirm(`日程「${b.dataset.l}」を削除しますか？`))return;save(b.dataset.k,false);return}
+  if(a==='save'&&schAdd){const x=schAdd,l=x.l.trim();
+    const err=!l?'名前を入れてください。':!x.from?(x.kind==='b'?'開始日を選んでください。':'日付を選んでください。'):(x.kind==='b'&&!x.to)?'終了日を選んでください。':(x.kind==='b'&&x.to<x.from)?'終了日は開始日より後にしてください。':'';
+    if(err){x.err=err;render();return}
+    const v=x.kind==='b'?{p:x.pid,sa:'b',l,from:x.from,to:x.to}:{p:x.pid,sa:'m',l,d:x.from};
+    schAdd=null;
+    if(x.kind==='b'?(x.from<toISO(START)||x.to>toISO(END)):(x.from<toISO(START)||x.from>toISO(END)))setTimeout(()=>{setSync('追加しました。ガントの表示範囲の外の日付は、ガントには出ません。');setTimeout(()=>setSync(syncMsg),5000)},0);
+    save('sa'+uid(),v);}});
+$('#cards').addEventListener('input',e=>{const t=e.target;if(schAdd&&t.dataset&&t.dataset.sf&&t.dataset.sf!=='kind'){schAdd[t.dataset.sf]=t.value;if(schAdd.err){schAdd.err='';const h=t.closest('.schadd').querySelector('.hint');h&&h.remove()}}});
+$('#cards').addEventListener('change',e=>{const t=e.target;if(!schAdd||!t.dataset||!t.dataset.sf)return;
+  if(t.dataset.sf==='kind'){schAdd.kind=t.value;schAdd.err='';render();return}
+  schAdd[t.dataset.sf]=t.value;
+  if(t.dataset.sf==='from'&&schAdd.kind==='b'&&schAdd.to&&schAdd.to<t.value){schAdd.to=t.value;render()}});
+$('#gantt').addEventListener('click',e=>{if(!e.target.closest('[data-gdone]'))return;gDoneOpen=!gDoneOpen;try{localStorage.setItem('pjtl-gdone',gDoneOpen?'1':'0')}catch(e2){}render();const b=document.querySelector('#gantt [data-gdone]');b&&b.focus()});
 function render(){setRange();renderGoals();$('#gantt').innerHTML=ganttHTML();fixLabels();$('#gantt').style.setProperty('--n',NM);$('#cards').innerHTML=cardsHTML();
   document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.id==='allbtn'?showAll:c.dataset.k===filter));}
 
@@ -946,8 +996,8 @@ function applyEdit(t,k,f,v,card){
   const pid=card.dataset.id, p0=P.find(x=>x.id===pid), p=eff(p0);
   if(t==='b'){const b=p.bars.find(x=>x.k===k);let from=b.from,to=b.to;
     if(f==='from'){from=v;if(to<from)to=v}else{to=v;if(from>to)from=v}
-    save(k,{p:pid,l:b.l,from,to});return}
-  if(t==='m'){const m=p.ms.find(x=>x.k===k);save(k,{p:pid,l:m.l,d:v});return}
+    save(k,b.add?{...OV[k],from,to}:{p:pid,l:b.l,from,to});return}
+  if(t==='m'){const m=p.ms.find(x=>x.k===k);save(k,m.add?{...OV[k],d:v}:{p:pid,l:m.l,d:v});return}
   const e=p.ev.find(x=>x.k===k);
   if(e.link){const [kind,label,fld,o]=e.link,nv=addDays(v,o);
     if(kind==='b'){const b=p.bars.find(x=>x.l===label);let from=b.from,to=b.to;
