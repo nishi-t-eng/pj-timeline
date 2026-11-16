@@ -210,6 +210,14 @@ label.bt{display:inline-block}
 .glist em{font:500 .74rem var(--f-mono);font-style:normal;color:var(--now)}
 .levers{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:10px 22px;font-size:.8rem}
 .levers div{display:flex;gap:8px;min-width:0}.levers i{font:500 .72rem var(--f-mono);color:var(--now);font-style:normal;flex:none;padding-top:2px}
+.ghd{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.gedit{display:flex;flex-direction:column;gap:14px}
+.gedit h4{margin:0;font:700 .76rem var(--f-body);color:var(--muted)}
+.gr{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr) auto;gap:6px;align-items:center}
+.gr.lv{grid-template-columns:minmax(0,.6fr) minmax(0,1.6fr) auto}
+.gedit .di{width:100%;font:.8rem var(--f-body);padding:5px 6px}
+.gedit .hint{font-size:.74rem;color:var(--muted);margin:0}
+@media (max-width:640px){.gr,.gr.lv{grid-template-columns:minmax(0,1fr) auto}.gr .di:first-child,.gr.lv .di:first-child{grid-column:1/-1}}
 .notes{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:16px 18px}
 .notes ul{margin:8px 0 0;padding-left:1.2em;font-size:.84rem;color:var(--muted);display:flex;flex-direction:column;gap:4px}
 @media (max-width:560px){.g-row{grid-template-columns:132px 1fr}.ev li{grid-template-columns:1fr}}
@@ -228,22 +236,8 @@ label.bt{display:inline-block}
   </header>
 
   <section style="display:flex;flex-direction:column;gap:12px" aria-labelledby="goalh">
-    <h2 id="goalh">部の目標と打ち手</h2>
-    <div class="goals">
-      <ul class="glist">
-        <li><b>スタイルブックの粗利改善</b><em>+30万円／棟</em><span>実績: 入力待ち</span></li>
-        <li><b>契約率アップ</b><em>30%（6か月）</em><span>現状 23.7%</span></li>
-        <li><b>オリジナルキッチン</b><em>2027年4月リリース目標</em><span>年間500台規模の想定</span></li>
-        <li><b>G-residence</b><em>2027年2月12日リリース</em><span>受注は月1棟が目標</span></li>
-        <li><b>新LACIE・SMART</b><em>12月11日リリース</em><span>仕様・価格は調整中</span></li>
-        <li><b>オリジナル換気・空調</b><em>2027年4月に商品化を判断</em><span>冬の測定を12月から再開</span></li>
-      </ul>
-      <div class="levers">
-        <div><i>1</i><span><b>粗利改善</b> 家具・家電・収納の拡充と、採用率・粗利実績に基づく改善</span></div>
-        <div><i>2</i><span><b>商品競争力</b> キッチン・G-residence・LACIE・空調・睡眠研究で新しい価値をつくる</span></div>
-        <div><i>3</i><span><b>商品化品質</b> 仕様・原価・施工・安全・保証・資料の整合性を保つ</span></div>
-      </div>
-    </div>
+    <div class="ghd"><h2 id="goalh">部の目標と打ち手</h2><span id="goalbtn"></span></div>
+    <div class="goals" id="goals"></div>
   </section>
 
   <section style="display:flex;flex-direction:column;gap:12px" aria-label="全体タイムライン">
@@ -875,7 +869,42 @@ function cardsHTML(){
   const box=boxDone+boxDel;
   return act.map(x=>x.h).join('')+box;
 }
-function render(){setRange();$('#gantt').innerHTML=ganttHTML();$('#gantt').style.setProperty('--n',NM);$('#cards').innerHTML=cardsHTML();
+// ---- 部の目標と打ち手（overrides の 'goals' に {g:[{t,v,s}],l:[{t,d}]} で保存。無ければ初期の内容）
+const GOALS_DEF={g:[{t:'スタイルブックの粗利改善',v:'+30万円／棟',s:'実績: 入力待ち'},{t:'契約率アップ',v:'30%（6か月）',s:'現状 23.7%'},{t:'オリジナルキッチン',v:'2027年4月リリース目標',s:'年間500台規模の想定'},{t:'G-residence',v:'2027年2月12日リリース',s:'受注は月1棟が目標'},{t:'新LACIE・SMART',v:'12月11日リリース',s:'仕様・価格は調整中'},{t:'オリジナル換気・空調',v:'2027年4月に商品化を判断',s:'冬の測定を12月から再開'}],
+ l:[{t:'粗利改善',d:'家具・家電・収納の拡充と、採用率・粗利実績に基づく改善'},{t:'商品競争力',d:'キッチン・G-residence・LACIE・空調・睡眠研究で新しい価値をつくる'},{t:'商品化品質',d:'仕様・原価・施工・安全・保証・資料の整合性を保つ'}]};
+let goalEdit=null;
+const goalsCur=()=>{const o=OV.goals;return o&&Array.isArray(o.g)&&Array.isArray(o.l)?o:GOALS_DEF};
+const hx=t=>esc(t).replace(/>/g,'&gt;');
+function goalsForm(G){
+  const gr=(x,i)=>`<div class="gr" data-gi="${i}"><input class="di" data-gf="t" value="${esc(x.t||'')}" placeholder="項目" aria-label="項目"><input class="di" data-gf="v" value="${esc(x.v||'')}" placeholder="目標" aria-label="目標"><input class="di" data-gf="s" value="${esc(x.s||'')}" placeholder="補足（現状など）" aria-label="補足"><button class="bt dg" type="button" data-gdel="g${i}">削除</button></div>`;
+  const lr=(x,i)=>`<div class="gr lv" data-li="${i}"><input class="di" data-gf="t" value="${esc(x.t||'')}" placeholder="見出し" aria-label="打ち手の見出し"><input class="di" data-gf="d" value="${esc(x.d||'')}" placeholder="説明" aria-label="打ち手の説明"><button class="bt dg" type="button" data-gdel="l${i}">削除</button></div>`;
+  return `<div class="gedit"><h4>目標（項目・目標・補足）</h4>${G.g.map(gr).join('')}<div><button class="bt" type="button" data-gact="addg">＋目標を追加</button></div>
+  <h4>打ち手（見出し・説明）</h4>${G.l.map(lr).join('')}<div><button class="bt" type="button" data-gact="addl">＋打ち手を追加</button></div>
+  <p class="hint">保存すると全員に共有され、公開ページにも載ります。</p>
+  <div class="ac"><button class="bt pr" type="button" data-gact="save" style="--c:var(--now)">保存</button><button class="bt" type="button" data-gact="cancel">キャンセル</button>${OV.goals?'<button class="bt dg" type="button" data-gact="reset">初期の内容に戻す</button>':''}</div></div>`;
+}
+function goalsRead(){const box=$('#goals');return{g:[...box.querySelectorAll('.gr[data-gi]')].map(r=>({t:r.querySelector('[data-gf=t]').value.trim(),v:r.querySelector('[data-gf=v]').value.trim(),s:r.querySelector('[data-gf=s]').value.trim()})),
+  l:[...box.querySelectorAll('.gr[data-li]')].map(r=>({t:r.querySelector('[data-gf=t]').value.trim(),d:r.querySelector('[data-gf=d]').value.trim()}))}}
+function renderGoals(){
+  $('#goalbtn').innerHTML=canWrite&&!goalEdit?'<button class="bt" type="button" data-gact="edit">編集</button>':'';
+  if(goalEdit){if(!$('#goals .gedit'))$('#goals').innerHTML=goalsForm(goalEdit);return}
+  const G=goalsCur();
+  $('#goals').innerHTML=`<ul class="glist">${G.g.map(x=>`<li><b>${hx(x.t)}</b>${x.v?`<em>${hx(x.v)}</em>`:''}${x.s?`<span>${hx(x.s)}</span>`:''}</li>`).join('')}</ul>`+
+    (G.l.length?`<div class="levers">${G.l.map((x,i)=>`<div><i>${i+1}</i><span><b>${hx(x.t)}</b> ${hx(x.d)}</span></div>`).join('')}</div>`:'');
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-gact],[data-gdel]');if(!b||!b.closest('#goals,#goalbtn'))return;
+  const a=b.dataset.gact;
+  if(a==='edit'){goalEdit=JSON.parse(JSON.stringify(goalsCur()));$('#goals').innerHTML='';renderGoals();const f=$('#goals input');f&&f.focus();return}
+  if(a==='cancel'){goalEdit=null;renderGoals();return}
+  if(a==='reset'){if(!confirm('部の目標と打ち手を初期の内容に戻しますか？'))return;goalEdit=null;save('goals',false);return}
+  const cur=goalsRead();
+  if(b.dataset.gdel){const t=b.dataset.gdel[0],i=+b.dataset.gdel.slice(1);cur[t].splice(i,1)}
+  else if(a==='addg')cur.g.push({t:'',v:'',s:''});
+  else if(a==='addl')cur.l.push({t:'',d:''});
+  else if(a==='save'){const v={g:cur.g.filter(x=>x.t||x.v||x.s),l:cur.l.filter(x=>x.t||x.d)};goalEdit=null;save('goals',v);setSync('部の目標と打ち手を保存しました。');setTimeout(()=>setSync(syncMsg),4000);return}
+  goalEdit=cur;$('#goals').innerHTML='';renderGoals();
+});
+function render(){setRange();renderGoals();$('#gantt').innerHTML=ganttHTML();$('#gantt').style.setProperty('--n',NM);$('#cards').innerHTML=cardsHTML();
   document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.id==='allbtn'?showAll:c.dataset.k===filter));}
 
 // ---- 保存
@@ -1062,7 +1091,7 @@ setSync('日程の変更を確認中です。');
   let can=null;try{can=user?await user.can('data.write'):null}catch(e){}
   canWrite=can!==false;
   ovRef=db.doc('timeline/overrides');addRef=db.doc('timeline/added');
-  syncMsg=canWrite?'各カードで、日程の変更、プロジェクト名・担当者の変更、経緯の追加・編集・削除、今週の進捗と次のアクションの編集、課題・リスクと資料・リンクの追加、プロジェクトの完了・削除ができます。変更は全員に共有されます。':'公開用の閲覧専用ページです。内容は2026年11月16日時点のものです。';
+  syncMsg=canWrite?'「部の目標と打ち手」は右の「編集」で直せます。各カードで、日程の変更、プロジェクト名・担当者の変更、経緯の追加・編集・削除、今週の進捗と次のアクションの編集、課題・リスクと資料・リンクの追加、プロジェクトの完了・削除ができます。変更は全員に共有されます。':'公開用の閲覧専用ページです。内容は2026年11月16日時点のものです。';
   setSync(syncMsg);
   rkRef=db.doc('timeline/risks');flRef=db.doc('timeline/files');
   rkRef.onSnapshot(snap=>{RK=snap.exists?(snap.data()||{}):{};render()},()=>{});
