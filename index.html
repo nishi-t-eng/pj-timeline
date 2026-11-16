@@ -23,7 +23,8 @@
   --rk-r:#ee8a6a; --rk-y:#e3b25a; --rk-g:#8fb39e;
   --bg:#121312; --panel:#121312; --fg:#ecebe8; --muted:#9a9f9b; --line:#383b39; --grid:#262827;
   --now:#d4b274; --today:#ecebe8; --c-new:#e8e6e1; --c-kit:#d4b274; --c-air:#8fb39e; --c-oth:#9db3c1; --c-gp:#f5a23a; --on-c:#171817; --pm:20%; --pt:14%; --logo-l:none; --logo-d:block; color-scheme:dark}
-body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-weight:400;letter-spacing:.02em;line-height:1.7;
+html{font-size:112.5%}
+body{font-size:.875rem;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-weight:400;letter-spacing:.02em;line-height:1.7;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
 .wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
 h1{font-family:var(--f-head);font-weight:400;letter-spacing:.1em;font-size:clamp(1.5rem,4vw,2.1rem);line-height:1.4;margin:0;text-wrap:balance}
@@ -133,8 +134,10 @@ h2{font-family:var(--f-head);font-weight:500;letter-spacing:.08em;font-size:1.15
 .rk li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 8px;font-size:.82rem;align-items:baseline}
 .sg{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:.72rem;white-space:nowrap}
 .sg::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
-.sg.r{color:var(--rk-r)}.sg.y{color:var(--rk-y)}.sg.g{color:var(--rk-g)}.sg.x{color:var(--muted)}
-.sg.x::before{background:transparent;border:2px solid currentColor;box-sizing:border-box}
+.sg.r{color:var(--rk-r)}.sg.y{color:var(--rk-y)}.sg.g{color:var(--rk-g)}.sg.x,.sg.xt{color:var(--muted)}
+.sg.x::before,.sg.xt::before{background:transparent;border:2px solid currentColor;box-sizing:border-box}
+.sg.t{color:var(--now)}
+.sg.t::before{border-radius:2px}
 .rk li.dn .rt{opacity:.55}.rk li.dn .rt b{text-decoration:line-through}
 .rt{display:flex;flex-direction:column;gap:2px;min-width:0}
 .rt b{font-weight:700;line-height:1.5}
@@ -160,7 +163,10 @@ h2{font-family:var(--f-head);font-weight:500;letter-spacing:.08em;font-size:1.15
 label.bt{display:inline-block}
 .rdw{position:relative;display:flex;gap:4px;min-width:0;align-items:center}
 .rdw .di{flex:1;min-width:0;width:auto}
-.rdw input[type=date]{position:absolute;left:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+.calw{position:relative;flex:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:30px;border:1px solid var(--line);border-radius:2px;background:var(--panel);cursor:pointer;font-size:.9rem;overflow:hidden}
+.calw:hover{border-color:var(--fg)}
+.calw input[type=date]{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;opacity:0;cursor:pointer}
+.calw input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;cursor:pointer}
 @media (max-width:560px){.rr1{grid-template-columns:64px minmax(0,1fr) auto}.rr1 .rdw{grid-column:1/3}}
 .wk .hint{font-size:.72rem;color:var(--muted);margin:2px 0 0}
 .wk .nr input[data-wf="nt"]{grid-column:1/-1}
@@ -186,6 +192,9 @@ label.bt{display:inline-block}
 .pastd>summary:hover{border-color:var(--fg)}
 .pastd>summary:focus-visible{outline:2px solid var(--now);outline-offset:2px}
 .pastd>ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.fsz{display:flex;gap:4px;align-items:center;font-size:.78rem;color:var(--muted)}
+.fsz .bt{font-size:.78rem;padding:2px 10px}
+.fsz .bt[aria-pressed="true"]{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
 .card[open]{grid-column:1/-1}
 .card[open] .st{max-width:80ch}
 .cb{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
@@ -244,6 +253,7 @@ label.bt{display:inline-block}
         <span><i class="sw-done"></i>実施済み</span><span><i class="sw-plan"></i>予定</span>
         <span><i class="sw-ms"></i>節目</span><span><i class="sw-now"></i>今日</span><span><i class="sw-done" style="background:color-mix(in srgb,var(--muted) 45%,var(--panel))"></i>過去</span>
       </div>
+      <div class="fsz" role="group" aria-label="文字サイズ"><span>文字サイズ</span><button class="bt" type="button" data-fs="s" aria-pressed="false">小</button><button class="bt" type="button" data-fs="m" aria-pressed="true">中</button><button class="bt" type="button" data-fs="l" aria-pressed="false">大</button></div>
     </div>
     <div class="gantt-scroll"><div class="gantt" id="gantt"></div></div>
   </section>
@@ -260,7 +270,7 @@ label.bt{display:inline-block}
     <div class="gantt-scroll"><table class="mt">
       <thead><tr><th>月</th><th>オリジナルキッチン本体</th><th>周辺（永大産業 UTILIA など）</th></tr></thead>
       <tbody>
-        <tr><td>11月</td><td>11/4 第一創を訪問、11/6 デザイン最終確認とスケジュール再構築、11/10 豊中オフィスのオーナーと面談、11/11 東京でサンプル確認、11/25 アイカ工業を見学。詳細図面、見積・交渉、材料発注、部分試作。</td><td>UTILIAの新規格をリリース。乾燥機（Panasonic）は、安全確認のあと導入日を決定。スタイルブックへ順次反映。</td></tr>
+        <tr><td>11月</td><td>11/4 第一創を訪問、11/6 デザイン最終確認とスケジュール再構築、11/10 豊中オフィスのオーナーと面談、11/11 東京でサンプル確認、11/25 アイカ工業を見学。詳細図面、見積・交渉、材料発注、部分試作。</td><td>乾燥機（Panasonic）は、安全確認のあと導入日を決定。スタイルブックへ順次反映。</td></tr>
         <tr><td>12月</td><td>試作品の確認、施工方法と品質の確認。展示用キッチンの製作準備。ソフト仕様を凍結（月末）。</td><td>新LACIE・SMARTを12/11にリリース予定。</td></tr>
         <tr><td>2027年1月</td><td>第2試作・量産試作。ハード仕様を凍結。展示用キッチンを製作・設置（月末）。</td><td></td></tr>
         <tr><td>2月</td><td>商品撮影、カタログ・販促資料の制作（月末完成）。発売決裁（GO/NO-GO）。</td><td>G-residence リリース目標。</td></tr>
@@ -307,7 +317,7 @@ label.bt{display:inline-block}
   </section>
 </div>
 
-<script>window.__PUB=true;const __D={"overrides": {"b1vd9my0": {"from": "2026-11-05", "l": "仕様確定", "p": "dryer", "to": "2026-11-13"}, "bknz2xj": {"from": "2026-10-29", "l": "確認会・説明会", "p": "dryer", "to": "2026-11-10"}, "c7fcjts": {"done": true, "p": "cost"}, "cjco5e1": {"d": "2026-11-06", "done": true, "p": "hvac"}, "clxtg9r": {"d": "2026-11-06", "done": true, "p": "epc"}, "e98ygzd": {"d": "2026-11-13", "od": "2026-11-30", "p": "dryer", "t": "安全確認の結果をもとに、給気対策・仕様・売価・保証を確定。その後、正式な導入日を"}, "e9dbff2": {"del": true, "nt": null, "od": "2026-11-26", "p": "oem", "t": "事前資料（11/13回）に、マーケの「ルームツアー計画、谷尻さんとのコラボ（11"}, "eh7tb6m": {"del": true, "od": "2026-11-20", "p": "furn", "t": "アジアファニシングフェアを視察。"}, "ep2evvt": {"del": true, "od": "2026-12-07", "p": "vent", "t": "冬季測定を再開。"}, "ev4lxwt": {"nt": "アイカ工業の工場を見学し加工技術を確認", "od": "2026-11-25", "p": "oem", "t": "アイカ工業の工場を見学し加工技術を確認（山根・西・村上）。"}, "n1145r7b": {"name": "スタイルブック粗利改善　粗利＋30万/棟", "p": "sb"}, "n19kmpr": {"name": "オリジナル換気・全館空調システム（OEM・内製化）", "p": "vent"}, "n1iik3zq": {"name": "商品企画部 目標", "p": "corp"}, "n1v55l6o": {"name": "新LACIE（ラシエ）", "p": "lacie"}, "n4l8n6f": {"name": "G-residence（NoiseLess）", "p": "ng"}, "nly0tru": null, "o1po5xps": {"own": "西", "p": "furn"}, "ol0v7ih": {"own": "商品企画部", "p": "corp"}, "w1444uy7": {"next": [["2026-11-10", "11/10", "豊中オフィスのオーナーへ、試作室の使用許可をお願いに伺う（13時）"], ["2026-11-11", "11/11", "東京でエガー扉面・シゲルシンクの現物を確認"], ["2026-11-16", "11/16", "ブランコシンク確認"], ["2026-12-20", "12/20頃", "詳細設計を完了"], ["2027-02-15", "27/2/15頃", "試作3セットを試作室へ搬入"]], "p": "oem", "wd": "2026-11-09", "wins": ["11/6に顧問（浅谷・益子）と開発工程を確認。次の工程に進む条件として、代表が承認した商品企画書が必須になった", "試作3セット（アイランド型・カップボードを含む）を2/15頃に搬入する日程で合意。詳細設計は12/20頃までに完了させる", "カウンターの試作素材はクレアサーフェイスに決定。ウルトラサーフェイスは見送り", "製造を始めるため、定款に「住宅設備機器の製造」の追加が必要。倉庫は委託でスモールスタートを検討"]}, "w1ime4n7": {"next": [["2026-11-12", "11/12", "ネーミング案とコンセプトを持ち寄り"], ["2026-11-30", "11月中", "サイト構成を固める"], ["2026-12-01", "12月", "専用サイトの制作を開始"], ["2027-01-15", "27/1/15", "お施主様宅　撮影予定"], ["2027-02-12", "27/2/12", "リリース"]], "p": "ng", "wd": "2026-11-09", "wins": ["10/29のコンセプト会議で、既存のGハウスとは別の、設計事務所寄りのブランドとして展開することで合意", "ノイズレスの仕様を標準価格の基準にし、フルオーダー部分は個別見積りで対応", "富裕層向けの独立したWebサイトを12月から制作することで合意", "設計・積算が髙濱氏に集中しているため、負担の軽減が課題"]}, "w1m4ogir": {"next": [["2026-11-10", "11/10頃", "WIC収納の施工方法を、関係部署と協議"], ["2026-11-30", "11月中", "WIC収納"]], "p": "sb", "wd": "2026-11-09", "wins": ["WIC収納（フィルフィット規格化）とTVボード（背面の逃げを確保した仕様）の仕様が固まった。総原価と価格は精査中", "家電5分類（冷蔵庫・洗濯機・TV・ロボット掃除機・加湿空気清浄機）を選定"]}, "w26xcx5": {"next": [["2026-11-19", "11/19", "展示会視察（家具の情報収集）"], ["2026-11-30", "11月中", "家具サイトの役割分担と方針を決定"]], "p": "furn", "wd": "2026-11-09", "wins": ["家具・カーテンの予算を、資金計画書に組み込む方針", "家具のオンライン販売は、リラシオネスのサイトを活用し、自社で発注受注を行わずに利益を残す方針（11/2の経営会議で決定）"]}, "wnkxk2c": {"next": [["2026-11-10", "11/10", "永大産業と施工方法を協議（16時）"], ["2026-11-10", "11/10", "安全確認の結果をもとに、給気対策・仕様・売価・保証を確定"], ["2026-11-12", "11/12", "リリース"]], "p": "dryer", "wd": "2026-11-09", "wins": ["実機確認会は1回目（10/29）、2回目（11/5）とも無事終了", "排気量は100㎥/h。高気密住宅では差圧ダンパー（差圧給気口）が必要", "差圧給気口を全棟標準にする場合の費用・必要給気量・設置位置・施工条件を確認中"]}, "wnkxk36": {"next": [], "p": "dryer", "wd": "2026-11-16", "wins": ["工事部MT（11/10）。永大産業の乾太くん専用収納ユニットを確認。換気フードはPanasonic推奨の専用品防火ダンパーをメーカーが推奨しないため、Gハウス側で防火ダンパー付きを選定する方針。設計部にて省令準耐火仕様を確認後、設置可否を判断（11/13）", "1on1（11/12）。リリースは11/13を見込むとの報告。実機確認会と施工説明会（11/10）は済み（正式な導入日は要確認）"]}, "wq81ju3": {"next": [["2026-11-30", "11月中", "既存の測定結果を整理し、循環経路と機器配置の改善案を作成"], ["2026-12-04", "12/7前後", "冬季測定を再開"], ["2027-03-31", "27/3末", "総合検証を完了。4月に商品化を判断"]], "p": "vent", "wd": "2026-11-09", "wins": ["夏季測定は10/23で区切り。豊中モデルの実測で、室間の温度差が約2〜2.5℃緩和した（暫定値）", "ファンの直風が寒く感じる課題があり、配置・風向を再検討中", "空調と24時間換気を分ける案を協議（10/27）。機器原価は現行約107万円から50万円程度を目指す", "冬季測定は12/7前後に再開する方針を確認（10/30）"]}, "wq81jux": {"next": [], "p": "vent", "wd": "2026-11-16", "wins": ["・11月中に、ファンの入れ替え手配"]}, "x60vm31": {"del": true, "p": "part"}, "xl0uxt6": {"del": true, "p": "corp"}}, "risks": {"dryer": [{"s": "y", "t": "換気フードの防火ダンパーの有無　省令準耐火の対応", "a": "仕様を再確認し、結果を待つ", "o": "西", "d": "11/30", "sh": 1}], "ng": [{"s": "y", "t": "ブランド名が未決", "a": "角山案・若狹案から2案に絞って検討する", "o": "西・若狹・髙濱", "d": "11/20", "sh": 1}, {"s": "y", "t": "施工事例が少なく、撮影済みの写真も少ない", "a": "CGで仮掲載し、完成後に実物へ差し替える", "o": "髙濱・西", "d": "完成後", "sh": 1}, {"s": "y", "t": "総額請負金額・粗利の下限を決める", "a": "", "o": "西", "d": "2/12", "sh": 1}, {"s": "y", "t": "特定建設業許可", "a": "", "o": "西", "d": "2/12", "sh": 1}], "oem": [{"s": "x", "t": "ユーロ建て決済の方法が未確認", "a": "過去のドル建て送金の事例が、同じ方法で使えるか確認する。為替レートをみてまとまった額を換金をしておく", "o": "西", "d": "11/30", "sh": 1}, {"s": "y", "t": "輸入材料の保管場所が未定", "a": "委託倉庫の候補を調べ、取引先の紹介も当たる", "o": "趙祐規", "d": "年内", "sh": 1}, {"s": "y", "t": "天板の素材と調達ルートが未決（HI-MACS／クレアサーフェス、商社経由か直接か）", "a": "比較見積りを取り、商社との面談結果を確認する", "o": "山根", "d": "次回まで", "sh": 1}, {"s": "r", "t": "商品企画書作成", "a": "", "o": "山根", "d": "11/30", "sh": 1}, {"s": "y", "t": "製造を始めるため、定款に「住宅設備機器の製造」の追加が必要。", "a": "", "o": "趙祐規", "d": "", "sh": 1}], "sb": [{"s": "y", "t": "テレビボードの施工順序（クロスの前後）", "a": "大工がクロス前に施工する方向で、工事部と確認を続ける", "o": "山根", "d": "未定", "sh": 1}], "sleep": [{"s": "y", "t": "契約書類手配・同意書", "a": "", "o": "西", "d": "11/30", "sh": 1}, {"s": "y", "t": "switchbot　オートロック　商品・手配", "a": "", "o": "西", "d": "11/30", "sh": 1}], "smart": [{"s": "y", "t": "IC打合せ2回の枠で、電気配線・コンセント位置の調整が難しい", "a": "細かい調整は有償オプションにし、標準はパターン固定とする案を協議する", "o": "渡邉・古久保", "d": "未定", "sh": 1}], "vent": [{"s": "y", "t": "省令準耐火対策", "a": "", "o": "西", "d": "11/30", "sh": 1}]}, "files": {"sleep": [{"id": "xmwe853jmn8mq", "k": "link", "ti": "株式会社Gハウス御中_デバイスレンタルおよび解析クラウド利用_見積書_Q-0000000517", "u": "https://drive.google.com/file/d/1O7OE29qNr7grouEwtPGMKHKIxXsCk3uF/view?usp=drive_link", "ds": "", "sh": 1}, {"id": "xmwe8bgpd9fvn", "k": "link", "ti": "カタログ", "u": "https://drive.google.com/file/d/1L2ky2CqpmA5c1VldJOGos8J04lWhTp6J/view?usp=drive_link", "ds": "", "sh": 1}, {"id": "xmwe8kygnyrb0", "k": "link", "ti": "カタログ2", "u": "https://drive.google.com/file/d/15m0R-VcTykylDvl0oy34Z8ZMBQmpDpBw/view?usp=drive_link", "ds": "", "sh": 1}, {"id": "xmweann8ubees", "k": "link", "ti": "睡眠体験実験_参加同意書_完成版20261111", "u": "https://docs.google.com/document/d/1ciHIu2aIeiI5uD0yrSCMtOpaOoQfK4Gu/edit?usp=drive_link&ouid=115583118608376603413&rtpof=true&sd=true", "ds": "", "sh": 1}]}};window.claude={use:async n=>n==='db'?{doc:p=>({onSnapshot:ok=>setTimeout(()=>{const k=p.split('/').pop(),d=__D[k];ok({exists:!!d,data:()=>d||{}})},0),update:async()=>{},set:async()=>{}})}:{can:async()=>false}};</script>
+<script>window.__PUB=true;const __D={"overrides": {"b1vd9my0": {"from": "2026-11-05", "l": "仕様確定", "p": "dryer", "to": "2026-11-13"}, "bknz2xj": {"from": "2026-10-29", "l": "確認会・説明会", "p": "dryer", "to": "2026-11-10"}, "c19kwdnz": {"done": true, "p": "utilia"}, "c7fcjts": {"done": true, "p": "cost"}, "cjco5e1": {"d": "2026-11-06", "done": true, "p": "hvac"}, "cjmul0h": {"done": true, "p": "rh"}, "clxtg9r": {"d": "2026-11-06", "done": true, "p": "epc"}, "e98ygzd": {"d": "2026-11-13", "od": "2026-11-30", "p": "dryer", "t": "安全確認の結果をもとに、給気対策・仕様・売価・保証を確定。その後、正式な導入日を"}, "e9dbff2": {"del": true, "nt": null, "od": "2026-11-26", "p": "oem", "t": "事前資料（11/13回）に、マーケの「ルームツアー計画、谷尻さんとのコラボ（11"}, "eh7tb6m": {"del": true, "od": "2026-11-20", "p": "furn", "t": "アジアファニシングフェアを視察。"}, "ep2evvt": {"del": true, "od": "2026-12-07", "p": "vent", "t": "冬季測定を再開。"}, "ev4lxwt": {"nt": "アイカ工業の工場を見学し加工技術を確認", "od": "2026-11-25", "p": "oem", "t": "アイカ工業の工場を見学し加工技術を確認（山根・西・村上）。"}, "n1145r7b": {"name": "スタイルブック粗利改善　粗利＋30万/棟", "p": "sb"}, "n19kmpr": {"name": "オリジナル換気・全館空調システム（OEM・内製化）", "p": "vent"}, "n1iik3zq": {"name": "商品企画部 目標", "p": "corp"}, "n1v55l6o": {"name": "新LACIE（ラシエ）", "p": "lacie"}, "n4l8n6f": {"name": "G-residence（NoiseLess）", "p": "ng"}, "njcviw4": {"name": "Panasonic全館空調・エアコンラインナップ", "p": "hvac"}, "nly0tru": null, "o1po5xps": {"own": "西", "p": "furn"}, "ol0v7ih": {"own": "商品企画部", "p": "corp"}, "w1444uy7": {"next": [["2026-11-10", "11/10", "豊中オフィスのオーナーへ、試作室の使用許可をお願いに伺う（13時）"], ["2026-11-11", "11/11", "東京でエガー扉面・シゲルシンクの現物を確認"], ["2026-11-16", "11/16", "ブランコシンク確認"], ["2026-12-20", "12/20頃", "詳細設計を完了"], ["2027-02-15", "27/2/15頃", "試作3セットを試作室へ搬入"]], "p": "oem", "wd": "2026-11-09", "wins": ["11/6に顧問（浅谷・益子）と開発工程を確認。次の工程に進む条件として、代表が承認した商品企画書が必須になった", "試作3セット（アイランド型・カップボードを含む）を2/15頃に搬入する日程で合意。詳細設計は12/20頃までに完了させる", "カウンターの試作素材はクレアサーフェイスに決定。ウルトラサーフェイスは見送り", "製造を始めるため、定款に「住宅設備機器の製造」の追加が必要。倉庫は委託でスモールスタートを検討"]}, "w1ime4n7": {"next": [["2026-11-12", "11/12", "ネーミング案とコンセプトを持ち寄り"], ["2026-11-30", "11月中", "サイト構成を固める"], ["2026-12-01", "12月", "専用サイトの制作を開始"], ["2027-01-15", "27/1/15", "お施主様宅　撮影予定"], ["2027-02-12", "27/2/12", "リリース"]], "p": "ng", "wd": "2026-11-09", "wins": ["10/29のコンセプト会議で、既存のGハウスとは別の、設計事務所寄りのブランドとして展開することで合意", "ノイズレスの仕様を標準価格の基準にし、フルオーダー部分は個別見積りで対応", "富裕層向けの独立したWebサイトを12月から制作することで合意", "設計・積算が髙濱氏に集中しているため、負担の軽減が課題"]}, "w1m4ogir": {"next": [["2026-11-10", "11/10頃", "WIC収納の施工方法を、関係部署と協議"], ["2026-11-30", "11月中", "WIC収納"]], "p": "sb", "wd": "2026-11-09", "wins": ["WIC収納（フィルフィット規格化）とTVボード（背面の逃げを確保した仕様）の仕様が固まった。総原価と価格は精査中", "家電5分類（冷蔵庫・洗濯機・TV・ロボット掃除機・加湿空気清浄機）を選定"]}, "w1m4ogjl": {"next": [], "p": "sb", "wd": "2026-11-16", "wins": ["工事部MT（11/10）。永大産業の4アイテム（ヘアケアボックス、BFフロートテレビボード、乾太くん専用収納ユニットなど）が正式に決定", "太田顧問MTG（11/13）。契約済みの顧客が多く、原価・価格を上げにくい。回収策は、ICによるオプション金額の引き上げと家具・家電の提案。ただし家具・家電は単純には難しい", "改革チーム会議（11/13）。家電販売は一旦やめて、サカイ引越センター等を導入する方向。", "山根さんは、ウォークインクローゼット関連の商品のリリース準備を急ぐ"]}, "w26xcx5": {"next": [["2026-11-19", "11/19", "展示会視察（家具の情報収集）"], ["2026-11-30", "11月中", "家具サイトの役割分担と方針を決定"]], "p": "furn", "wd": "2026-11-09", "wins": ["家具・カーテンの予算を、資金計画書に組み込む方針", "家具のオンライン販売は、リラシオネスのサイトを活用し、自社で発注受注を行わずに利益を残す方針（11/2の経営会議で決定）"]}, "wnkxk2c": {"next": [["2026-11-10", "11/10", "永大産業と施工方法を協議（16時）"], ["2026-11-10", "11/10", "安全確認の結果をもとに、給気対策・仕様・売価・保証を確定"], ["2026-11-12", "11/12", "リリース"]], "p": "dryer", "wd": "2026-11-09", "wins": ["実機確認会は1回目（10/29）、2回目（11/5）とも無事終了", "排気量は100㎥/h。高気密住宅では差圧ダンパー（差圧給気口）が必要", "差圧給気口を全棟標準にする場合の費用・必要給気量・設置位置・施工条件を確認中"]}, "wnkxk36": {"next": [], "p": "dryer", "wd": "2026-11-16", "wins": ["工事部MT（11/10）。永大産業の乾太くん専用収納ユニットを確認。換気フードはPanasonic推奨の専用品防火ダンパーをメーカーが推奨しないため、Gハウス側で防火ダンパー付きを選定する方針。設計部にて省令準耐火仕様を確認後、設置可否を判断（11/13）", "1on1（11/12）。リリースは11/13を見込むとの報告。実機確認会と施工説明会（11/10）は済み（正式な導入日は要確認）"]}, "wq81ju3": {"next": [["2026-11-30", "11月中", "既存の測定結果を整理し、循環経路と機器配置の改善案を作成"], ["2026-12-04", "12/7前後", "冬季測定を再開"], ["2027-03-31", "27/3末", "総合検証を完了。4月に商品化を判断"]], "p": "vent", "wd": "2026-11-09", "wins": ["夏季測定は10/23で区切り。豊中モデルの実測で、室間の温度差が約2〜2.5℃緩和した（暫定値）", "ファンの直風が寒く感じる課題があり、配置・風向を再検討中", "空調と24時間換気を分ける案を協議（10/27）。機器原価は現行約107万円から50万円程度を目指す", "冬季測定は12/7前後に再開する方針を確認（10/30）"]}, "wq81jux": {"next": [], "p": "vent", "wd": "2026-11-16", "wins": ["・11月中に、ファンの入れ替え手配"]}, "x60vm31": {"del": true, "p": "part"}, "xl0uxt6": {"del": true, "p": "corp"}}, "risks": {"dryer": [{"s": "y", "t": "換気フードの防火ダンパーの有無　省令準耐火の対応", "a": "仕様を再確認し、結果を待つ", "o": "西", "d": "11/30", "sh": 1}], "ng": [{"s": "y", "t": "ブランド名が未決", "a": "角山案・若狹案から2案に絞って検討する", "o": "西・若狹・髙濱", "d": "11/20", "sh": 1}, {"s": "y", "t": "施工事例が少なく、撮影済みの写真も少ない", "a": "CGで仮掲載し、完成後に実物へ差し替える", "o": "髙濱・西", "d": "完成後", "sh": 1}, {"s": "y", "t": "総額請負金額・粗利の下限を決める", "a": "", "o": "西", "d": "2/12", "sh": 1}, {"s": "y", "t": "特定建設業許可", "a": "", "o": "西", "d": "2/12", "sh": 1}], "oem": [{"s": "x", "t": "ユーロ建て決済の方法が未確認", "a": "過去のドル建て送金の事例が、同じ方法で使えるか確認する。為替レートをみてまとまった額を換金をしておく", "o": "西", "d": "11/30", "sh": 1}, {"s": "y", "t": "輸入材料の保管場所が未定", "a": "委託倉庫の候補を調べ、取引先の紹介も当たる", "o": "趙祐規", "d": "年内", "sh": 1}, {"s": "y", "t": "天板の素材と調達ルートが未決（HI-MACS／クレアサーフェス、商社経由か直接か）", "a": "比較見積りを取り、商社との面談結果を確認する", "o": "山根", "d": "次回まで", "sh": 1}, {"s": "r", "t": "商品企画書作成", "a": "", "o": "山根", "d": "11/30", "sh": 1}, {"s": "y", "t": "製造を始めるため、定款に「住宅設備機器の製造」の追加が必要。", "a": "", "o": "趙祐規", "d": "", "sh": 1}], "sb": [{"s": "y", "t": "テレビボードの施工順序（クロスの前後）", "a": "大工がクロス前に施工する方向で、工事部と確認を続ける", "o": "山根", "d": "未定", "sh": 1}], "sleep": [{"s": "y", "t": "契約書類手配・同意書", "a": "", "o": "西", "d": "11/30", "sh": 1}, {"s": "y", "t": "switchbot　オートロック　商品・手配", "a": "", "o": "西", "d": "11/30", "sh": 1}, {"s": "x", "t": "測定機器の手配", "a": "", "o": "西", "d": "11/30", "sh": 1}], "smart": [{"s": "y", "t": "IC打合せ2回の枠で、電気配線・コンセント位置の調整が難しい", "a": "細かい調整は有償オプションにし、標準はパターン固定とする案を協議する", "o": "渡邉・古久保", "d": "未定", "sh": 1}], "vent": [{"s": "y", "t": "省令準耐火対策", "a": "", "o": "西", "d": "11/30", "sh": 1}]}, "files": {"sleep": [{"id": "xmwe853jmn8mq", "k": "link", "ti": "株式会社Gハウス御中_デバイスレンタルおよび解析クラウド利用_見積書_Q-0000000517", "u": "https://drive.google.com/file/d/1O7OE29qNr7grouEwtPGMKHKIxXsCk3uF/view?usp=drive_link", "ds": "", "sh": 1}, {"id": "xmwe8bgpd9fvn", "k": "link", "ti": "カタログ", "u": "https://drive.google.com/file/d/1L2ky2CqpmA5c1VldJOGos8J04lWhTp6J/view?usp=drive_link", "ds": "", "sh": 1}, {"id": "xmwe8kygnyrb0", "k": "link", "ti": "カタログ2", "u": "https://drive.google.com/file/d/15m0R-VcTykylDvl0oy34Z8ZMBQmpDpBw/view?usp=drive_link", "ds": "", "sh": 1}, {"id": "xmweann8ubees", "k": "link", "ti": "睡眠体験実験_参加同意書_完成版20261111", "u": "https://docs.google.com/document/d/1ciHIu2aIeiI5uD0yrSCMtOpaOoQfK4Gu/edit?usp=drive_link&ouid=115583118608376603413&rtpof=true&sd=true", "ds": "", "sh": 1}]}};window.claude={use:async n=>n==='db'?{doc:p=>({onSnapshot:ok=>setTimeout(()=>{const k=p.split('/').pop(),d=__D[k];ok({exists:!!d,data:()=>d||{}})},0),update:async()=>{},set:async()=>{}})}:{can:async()=>false}};</script>
 <script>
 const START0=new Date('2026-05-01'), END=new Date('2027-07-01'), NOW='2026-11-13', NOTES_DATE='2026-11-13', COMPANY_NOTES_DATE='2026-11-13';
 let START=START0, span=END-START0, showAll=false, NM=14;
@@ -383,9 +393,8 @@ const P=[
  ['2026-11-13','エガーの直接取引は、コンテナ単位のまとめ買いになるリスクがあり（メモは「40コンテナで2台分」）、出やすい色を2〜3種類に絞る方向で合意。洗面台はアイカ工業のシェアが強く価格も安いため、キッチンほどコストダウンが難しく、開発に資源を割くのが見合わない可能性がある（顧問は「キッチンに全振りでもよいのでは」）。11/25のアイカ工場見学で、仕入れ値の交渉可否を判断する。（商品企画部対策MTG 11/13）'],
  ['2026-11-13','ユーロ建て決済が必要になる可能性に備え、顧問の助言で、為替が良い時期にまとまった資金をユーロに替えてプールする。山根さんが支払い計画と為替リスクの管理体制を準備する。（商品企画部対策MTG 11/13）']]},
 {id:'utilia',cat:'kit',name:'永大産業オリジナルキッチン UTILIA',own:'山根',
- status:'7/1に新価格で展開済み。9/3から施工開始。11月リリースの新規格を永大と調整中。10/22の現物確認の結果、発売時は追加の配線穴・下穴を設けない方向。',
- wk:[{d:'2026-11-16',r:'11/9〜11/15',wins:['永大産業・工事部と施工面を打合せ。WIC収納などは、クロス前に大工が施工する運用（11/10）'],next:[]}],
- bars:[['2026-04-23','2026-07-01','価格交渉・新ラインナップ','d'],['2026-10-16','2026-11-30','新規格（11月リリース）','p']],
+ status:'7/1に新価格で展開済み。9/3から施工開始。リブパネルをリリース済みで、このプロジェクトは完了。',
+ bars:[['2026-04-23','2026-07-01','価格交渉・新ラインナップ','d']],
  ms:[['2026-07-01','新価格','d'],['2026-09-03','施工開始','d']],
  ev:[['2026-04-23','新ラインナップを設計ICミーティングで共有。4/24に新OPカタログを社内リリース。'],
  ['2026-06-05','永大が10%値上げを提示（Ⅱ型125万→137.5万円）。'],
@@ -393,18 +402,12 @@ const P=[
  ['2026-06-19','最終調整案。ペニンシュラ120万、アイランド122万、Ⅱ型124万円。OPは一律18.3%UP。'],
  ['2026-07-01','新価格・新レイアウトで展開開始。'],
  ['2026-08-28','BOSCH食洗機W600をハーフェレジャパン仕入に切替。23万→21万円。'],
- ['2026-09-03','注文住宅で施工開始（八尾市）。永大側の墨出しミスは永大が全件再チェックし追加費用も負担。'],
- ['2026-10-16','11月リリース規格の内容を確定。手掛け仕様、単色4色展開。'],
- ['2026-10-22','堺工場で現物確認。'],
- ['2026-10-23','掛率は33掛けから28.3掛けで着地。'],
- ['2026-11-30','新規格 リリース。',['b','新規格（11月リリース）','to',0]],
- ['2026-11-10','16:00 WIC収納などの施工面を永大・工事部と打合せ。クロス前に大工で施工する運用（永大メモ）。'],['2026-11-05','10/22の現物確認の結果を整理（定例報告）。配線穴は加工可能だがキャップが天板厚と合わず約6mm突出するため、発売時は追加の配線穴・下穴を設けず、需要を見て対応を検討。背面は上下各5mmのクリアランスが必要。後付けの照明は標準に組み込まない。現場で組み立てて壁へ固定し、クロス前に大工が取り付ける。'],
- ['2026-11-05','ヘアケアボックスは組立済みで納品。壁厚130mmへの納まり、2口コンセントの専用回路の要否、価格（定価・仕入・税区分）は、正式な見積と施工説明書で確認する（定例報告）。']]},
+ ['2026-09-03','注文住宅で施工開始（八尾市）。永大側の墨出しミスは永大が全件再チェックし追加費用も負担。']]},
 {id:'vent',cat:'air',name:'オリジナル換気システム',own:'西',
  status:'豊中モデルで室間温度差が約2.5℃改善。風が直接当たる課題があり、設置位置と吹出方向を見直し中。冬季測定は12/7頃に再開予定。',
- wk:[{d:'2026-11-16',r:'11/9〜11/15',wins:['Panasonicの換気フードは、防火ダンパーをメーカーが推奨しないため、Gハウス側で防火ダンパー付きを選定する方針。山根さんが実物の形状を確認して、設置可否を判断（11/13、対象の製品名は要確認）'],next:[]},{d:'2026-11-09',r:'11/2〜11/9',wins:['夏季測定は10/23で区切り。豊中モデルの実測で、室間の温度差が約2〜2.5℃緩和した（暫定値）','ファンの直風が寒く感じる課題があり、配置・風向を再検討中','空調と24時間換気を分ける案を協議（10/27）。機器原価は現行約107万円から50万円程度を目指す','冬季測定は12/7前後に再開する方針を確認（10/30）'],next:[['2026-11-30','11月中','既存の測定結果を整理し、循環経路と機器配置の改善案を作成'],['2026-12-07','12/7前後','冬季測定を再開'],['2027-03-31','27/3末','総合検証を完了。4月に商品化を判断']]}],
+ wk:[{d:'2026-11-16',r:'11/9〜11/15',wins:['全館空調の検証MTGは12/4。測定の準備として、11月末までにファンの向きを入れ替え、縦枠の隙間をふさぐ（山根さん）','太田顧問の来訪・共同研究の打合せ・計器の設置を、12/2・12/4・12/7に予定。12/7はモデルハウスで山口先生も交えて実施（11/13）','確認事項: 廊下と部屋の間にファンを置く場合の省令準耐火への適合を、確認申請の審査側に確認する（山根さん）','Panasonicの換気フードは、防火ダンパーをメーカーが推奨しないため、Gハウス側で防火ダンパー付きを選定する方針。山根さんが実物の形状を確認して、設置可否を判断（11/13、対象の製品名は要確認）'],next:[]},{d:'2026-11-09',r:'11/2〜11/9',wins:['夏季測定は10/23で区切り。豊中モデルの実測で、室間の温度差が約2〜2.5℃緩和した（暫定値）','ファンの直風が寒く感じる課題があり、配置・風向を再検討中','空調と24時間換気を分ける案を協議（10/27）。機器原価は現行約107万円から50万円程度を目指す','冬季測定は12/7前後に再開する方針を確認（10/30）'],next:[['2026-11-30','11月中','既存の測定結果を整理し、循環経路と機器配置の改善案を作成'],['2026-12-07','12/7前後','冬季測定を再開'],['2027-03-31','27/3末','総合検証を完了。4月に商品化を判断']]}],
  bars:[['2026-08-06','2026-09-10','CFD・機器準備','d'],['2026-09-10','2026-10-23','豊中で実測','d'],['2026-12-07','2027-03-31','冬季測定・総合検証','p']],
- ms:[['2027-04-01','商品化判断','p']],
+ ms:[['2026-12-04','全空調の検証MTG','p'],['2027-04-01','商品化判断','p']],
  ev:[['2026-08-06','太田顧問とミーティング。豊中モデルで部屋間ファンのCFDシミュレーションを開始。'],
  ['2026-08-25','SPAプロジェクトMTG。稲MH2棟、豊中MH、旭区MHで空調経路を確認。'],
  ['2026-08-31','風速計を設置。'],
@@ -419,12 +422,13 @@ const P=[
  ['2026-10-23','太田顧問MTG。将来は換気扇もオリジナルで製作し、2027年4月頃にリリースまたは方向性を決定。パスカルダンパー等の給気機構を全棟標準化する案（お客様負担3万円未満を想定）は社長に確認。'],
  ['2026-10-27','萩原顧問MT。現行Panasonic全館空調は本体約107万円、顧客向けオプション約180万円。目標は機器原価約50万円（見積は未確認）。壁内に収まるオリジナルクロスフローファン、台湾での調達・視察も検討。'],
  ['2026-11-06','全社会議（11月ボトム前半）。夏のデータ取りは終了し、12月中旬から同じモデルで冬のデータ取りを始める。並行してオリジナルの循環ファンを開発中。4月頃にデータを見て、商品化できるかを判断する（西の発表）。'],
- ['2026-11-13','太田顧問MTG。Panasonicの換気フードは、防火ダンパーや防虫網をメーカーが推奨せず、省令準耐火などの特例を除き原則つけない方針。専用品には防火ダンパーが付かないため、Gハウス側で防火ダンパー付きを選定する。山根さんが実物の形状を確認して設置可否を判断する（対象の製品名は音声認識で要確認）。（商品企画部対策MTG 11/13）']]},
+ ['2026-11-13','太田顧問MTG。Panasonicの換気フードは、防火ダンパーや防虫網をメーカーが推奨せず、省令準耐火などの特例を除き原則つけない方針。専用品には防火ダンパーが付かないため、Gハウス側で防火ダンパー付きを選定する。山根さんが実物の形状を確認して設置可否を判断する（対象の製品名は音声認識で要確認）。（商品企画部対策MTG 11/13）'],
+ ['2026-11-13','太田顧問MTG。全館空調の検証MTGを12/4に実施（電力測定器を持ち寄る）。測定の準備として、山根さんが11月末までにファンの向きを入れ替え、縦枠の左右下の隙間もモヘア等でふさぐ（「縦具」は縦枠の誤変換と判断）。廊下と部屋の間にファンを置く場合の省令準耐火への適合と、換気扇の小口の施工ボードの要否は、山根さんが確認申請の審査側に確認する。（商品企画部対策MTG 11/13）'],
+ ['2026-11-13','太田顧問の来訪・共同研究の打合せ・計器の設置を、12/2、12/4、12/7に予定。12/7はモデルハウスで山口先生も交えて実施し、顧問は朝に広島で授業をしてから来る（場所名は音声認識で要確認）。アメリカから取り寄せるボタン型温度計は12/7に間に合う見込み。山根さんが大学メールで顧問へ再送する。（商品企画部対策MTG 11/13）']]},
 {id:'hvac',cat:'air',name:'全館空調・エアコンラインナップ',own:'西',
  status:'設計ルール変更で5月契約から切替済み。エアコンは三菱Zシリーズとダイキンの2機種に決定。11/12にお客様邸で体感・保証説明、12/24にPanasonic春日工場の見学を計画中。',
- wk:[{d:'2026-11-16',r:'11/9〜11/15',wins:['全館空調の検証MTGは12/4。測定の準備として、11月末までにファンの向きを入れ替え、縦枠の隙間をふさぐ（山根さん）','太田顧問の来訪・共同研究の打合せ・計器の設置を、12/2・12/4・12/7に予定。12/7はモデルハウスで山口先生も交えて実施（11/13）','確認事項: 廊下と部屋の間にファンを置く場合の省令準耐火への適合を、確認申請の審査側に確認する（山根さん）'],next:[]}],
  bars:[['2026-05-01','2026-06-01','5月契約から切替','d']],
- ms:[['2026-07-24','成功事例共有','d'],['2026-09-03','エアコン2機種決定','d'],['2026-12-04','全空調の検証MTG','p']],
+ ms:[['2026-07-24','成功事例共有','d'],['2026-09-03','エアコン2機種決定','d']],
  ev:[['2026-03-13','旭区モデルで勉強会。旭区・豊中・長岡京モデルは導入困難と判断。'],
  ['2026-03-26','設計ルール変更。階高を1階2980→3030mm、2階2850→2950mm、スリーブ高さを32mm下げる。'],
  ['2026-05-01','5月契約から切替。新商品に標準採用。'],
@@ -437,9 +441,7 @@ const P=[
  ['2026-10-13','工事部向けの意見交換会。IAQコントローラーはエアコン本体から水平5m以内、ダクト最長6m（推奨4m）。'],
  ['2026-10-22','設計部向けの説明会（Panasonicリビング近畿）。壁付けグリルの販売価格、脱臭オプション、室外機の説明が西のタスク。'],
  ['2026-12-24','運転中を確認できる体感会と、Panasonicの工場見学を予定（確定ではない）。'],['2026-11-12','8:30 お客様邸（全館空調採用）に現地集合。実機を体感し、Panasonic担当（9:00合流）から10年保証の説明を受ける（営業会議）。'],
- ['2026-12-24','Panasonic春日工場で全空調システムを見学（木曜）。ICや営業など最大20名が参加可能で、林さんが出席者リストを作成して先方と調整中。営業会議では愛知での全館空調・24時間換気の視察として、リーダー陣で参加者を集計（リーダーMTG、営業会議）。'],
- ['2026-11-13','太田顧問MTG。全館空調の検証MTGを12/4に実施（電力測定器を持ち寄る）。測定の準備として、山根さんが11月末までにファンの向きを入れ替え、縦枠の左右下の隙間もモヘア等でふさぐ（「縦具」は縦枠の誤変換と判断）。廊下と部屋の間にファンを置く場合の省令準耐火への適合と、換気扇の小口の施工ボードの要否は、山根さんが確認申請の審査側に確認する。（商品企画部対策MTG 11/13）'],
- ['2026-11-13','太田顧問の来訪・共同研究の打合せ・計器の設置を、12/2、12/4、12/7に予定。12/7はモデルハウスで山口先生も交えて実施し、顧問は朝に広島で授業をしてから来る（場所名は音声認識で要確認）。アメリカから取り寄せるボタン型温度計は12/7に間に合う見込み。山根さんが大学メールで顧問へ再送する。（商品企画部対策MTG 11/13）']]},
+ ['2026-12-24','Panasonic春日工場で全空調システムを見学（木曜）。ICや営業など最大20名が参加可能で、林さんが出席者リストを作成して先方と調整中。営業会議では愛知での全館空調・24時間換気の視察として、リーダー陣で参加者を集計（リーダーMTG、営業会議）。']]},
 {id:'epc',cat:'air',name:'蓄電池 EP Cube・HEMS',own:'西',
  status:'EP Cubeは見送り、POWER DEPO Rへ切替。LIFE Xの蓄電池は長州産業の室内設置型も検討中。太陽光パネルはカナディアンソーラーへ順次切替。',
  bars:[['2026-07-24','2026-10-03','採用可否の検討','d']],
@@ -652,7 +654,7 @@ const P=[
  ['2026-12-31','西宮へ2セット目を設置し、各モデルハウスへ順次展開（11月度報告）。']]},
 {id:'sb',cat:'gp',name:'スタイルブック粗利改善',own:'山根・西',
  status:'10月末に内容を確定し、11月から順次スタイルブックに反映。11月度報告では、粗利+30万円/棟が目標。11/10に永大産業の4アイテム（ヘアケアボックス、BFフロートテレビボード、乾太くん専用収納ユニット、フィルフィット）が正式に決まった。テレビボード、テレビ金具、ヘアケアボックス、電気乾燥機台は、11/13までにリリースする予定（経営会議、事前資料の11/13回）。WIC収納は11月末掲載予定。',
- wk:[{d:'2026-11-16',r:'11/9〜11/15',wins:['工事部MT（11/10）。永大産業の4アイテム（ヘアケアボックス、BFフロートテレビボード、乾太くん専用収納ユニットなど）が正式に決定','太田顧問MTG（11/13）。契約済みの顧客が多く、原価・価格を上げにくい。回収策は、ICによるオプション金額の引き上げと家具・家電の提案。ただし家具・家電は単純には難しい','改革チーム会議（11/13）。家電販売は一旦やめて、サカイ引越センター等を導入する方向。ワンペーパー資料は西村さんが作成（家電PJとの関係は要確認）','山根さんは、ウォークインクローゼット関連の商品のリリース準備を急ぐ'],next:[]},{d:'2026-11-09',r:'11/2〜11/9',wins:['WIC収納（フィルフィット規格化）とTVボード（背面の逃げを確保した仕様）の仕様が固まった。総原価と価格は精査中','家電5分類（冷蔵庫・洗濯機・TV・ロボット掃除機・加湿空気清浄機）を選定'],next:[['2026-11-10','11/10頃','WIC収納の施工方法を、関係部署と協議'],['2026-11-30','11月中','WIC収納・TVボードをリリース']]}],
+ wk:[{d:'2026-11-16',r:'11/9〜11/15',wins:['工事部MT（11/10）。永大産業の4アイテム（ヘアケアボックス、BFフロートテレビボード、乾太くん専用収納ユニットなど）が正式に決定。WIC収納などは、クロス前に大工が施工する運用','太田顧問MTG（11/13）。契約済みの顧客が多く、原価・価格を上げにくい。回収策は、ICによるオプション金額の引き上げと家具・家電の提案。ただし家具・家電は単純には難しい','改革チーム会議（11/13）。家電販売は一旦やめて、サカイ引越センター等を導入する方向。ワンペーパー資料は西村さんが作成（家電PJとの関係は要確認）','山根さんは、ウォークインクローゼット関連の商品のリリース準備を急ぐ'],next:[]},{d:'2026-11-09',r:'11/2〜11/9',wins:['WIC収納（フィルフィット規格化）とTVボード（背面の逃げを確保した仕様）の仕様が固まった。総原価と価格は精査中','家電5分類（冷蔵庫・洗濯機・TV・ロボット掃除機・加湿空気清浄機）を選定'],next:[['2026-11-10','11/10頃','WIC収納の施工方法を、関係部署と協議'],['2026-11-30','11月中','WIC収納・TVボードをリリース']]}],
  bars:[['2026-09-25','2026-10-31','内容の検討','d'],['2026-11-01','2026-12-01','順次反映','p']],ms:[],
  ev:[['2026-09-25','項目として初出。'],
  ['2026-10-03','10月末に内容確定、11月以降に反映と設定。担当を割り当て。'],
@@ -671,7 +673,13 @@ const P=[
  ['2026-11-09','経営会議で西が報告。粗利+30万円の目標に向け、今週中にテレビボード、テレビ金具、ヘアケアボックス、電気乾燥機台をリリースする。LIFEX MTGでは、カップボード、アイロンドライヤー置き、洗面ボックスの調達先から、LIFE Xのお客様にもGハウスに近い金額で出せるかを相談（施工は問題なく、焦点は価格。調達先の表記は要確認）。'],
  ['2026-11-10','工事部MT。永大産業の4アイテムが正式に決定。ヘアケアボックスは埋込式で奥行130、4柄、フラップ扉内に2口コンセントとスイッチ付き（専用コンセント2本を電気図面に反映）。BFフロートテレビボードは1600・1800・1940mmの3サイズでワンプライス、Gハウス専用に中央扉へコンセント用開口（高さ130×幅300）を加工。乾太くん専用収納ユニットは洗濯機の横置き・下置きのプラン。フィルフィットは片側オープンは可、両側は不可で、天板・可動棚は現場でカット。テレビ金具のみ採用し、設置高さはICのタイミングで指定。施工は、クロス屋の前に大工が取り付ける方向で調整中だが、クロス後だとビスパテが浮く懸念が出て、確認を継続（工事部MT）。'],
  ['2026-11-13','太田顧問MTG。今期の契約顧客は10月末までに契約済みが多く、原価・価格を上げるのは難しい。回収策は、ICによるオプション金額の引き上げと家具・家電の提案。ただし家具・家電は、外部で安く買えることや赤字リスクから単純には難しく、ICの打合せは3回と限られる。フィルフィットは設計段階の構造制約（耐力壁の干渉など。「体力壁」は誤変換と判断）で、導入できる商品とタイミングに制限があり、今期導入できるものを早めに周知する。山根さんはウォークインクローゼット関連の商品のリリース準備を急ぐ。（商品企画部対策MTG 11/13）'],
- ['2026-11-13','改革チーム会議。家電販売は利益が薄く、引渡し前の設置も難しいため、一旦やめてサカイ引越センター等を導入する方向でまとまりつつある（「酒井センター」は誤変換と判断）。紹介料と条件を趙さん・西村さんが確認し、西も同席を依頼された。家電のフローと、迷わず選べるワンペーパー資料は西村さんが作成する（家電PJの11月リリースとの関係は要確認）。（改革チーム会議 11/13 14:52）']]},
+ ['2026-11-13','改革チーム会議。家電販売は利益が薄く、引渡し前の設置も難しいため、一旦やめてサカイ引越センター等を導入する方向でまとまりつつある（「酒井センター」は誤変換と判断）。紹介料と条件を趙さん・西村さんが確認し、西も同席を依頼された。家電のフローと、迷わず選べるワンペーパー資料は西村さんが作成する（家電PJの11月リリースとの関係は要確認）。（改革チーム会議 11/13 14:52）'],
+ ['2026-11-10','16:00 WIC収納などの施工面を永大・工事部と打合せ。クロス前に大工で施工する運用（永大メモ）。'],
+ ['2026-11-05','10/22の現物確認の結果を整理（定例報告）。配線穴は加工可能だがキャップが天板厚と合わず約6mm突出するため、発売時は追加の配線穴・下穴を設けず、需要を見て対応を検討。背面は上下各5mmのクリアランスが必要。後付けの照明は標準に組み込まない。現場で組み立てて壁へ固定し、クロス前に大工が取り付ける。'],
+ ['2026-11-05','ヘアケアボックスは組立済みで納品。壁厚130mmへの納まり、2口コンセントの専用回路の要否、価格（定価・仕入・税区分）は、正式な見積と施工説明書で確認する（定例報告）。'],
+ ['2026-10-16','永大産業の11月リリース規格の内容を確定。手掛け仕様、単色4色展開（ヘアケアボックス）。'],
+ ['2026-10-22','堺工場で現物確認（乾太くん台・ヘアケアボックス・TVボード）。'],
+ ['2026-10-23','掛率は33掛けから28.3掛けで着地（乾太くん台・ヘアケアボックス・TVボード）。']]},
 {id:'furn',cat:'gp',name:'オンライン家具サイト／展示会',own:'西・山根',
  status:'リラシオネスの仕組みを利用し、ONE ALLIANCE 家具ECを作るプロジェクト。サイトはSTCK社が出し、Gハウスは会員企業の1社として使う。11/13の打合せで仕組みを確認し、ドメイン取得とデモサイトを待って、掲載するメーカーの選定を進める。',
  wk:[{d:'2026-11-16',r:'11/9〜11/15',wins:['展示会視察（11/18・11/20）。顧問から「商談をまとめてくるつもりで」との助言（11/13）','ONE ALLIANCE 家具EC（リラシオネスの仕組みを使った、STCK社のサイト）と打合せ（11/13）。サイトは本部（STCK社）が出し、Gハウスは会員企業の1社として使う。売買はメーカーとお客様の間で行われ、Gハウスは売買に入らない','次は、STCK社がドメインを取得し、ダンドリワークがデモサイトを用意する。西さんは、展示会などでのメーカー候補を把握する（掲載するメーカーの範囲が決まってから相談）'],next:[]},{d:'2026-11-09',r:'11/2〜11/9',wins:['家具・カーテンの予算を、資金計画書に組み込む方針','家具のオンライン販売は、リラシオネスのサイトを活用し、自社で発注受注を行わずに利益を残す方針（11/2の経営会議で決定）'],next:[['2026-11-18','11/18・20','展示会視察（家具の情報収集）'],['2026-11-30','11月中','家具サイトの役割分担と方針を決定']]}],
@@ -791,17 +799,19 @@ function wkHTML(p){
   if(!top)return '';
   return `<div class="wk">${top}${rest.length?`<details><summary>以前の週次（${rest.length}週）</summary>${rest.map(w=>one(w,false)).join('')}</details>`:''}</div>`;
 }
-const RKL={r:'赤',y:'黄',g:'緑',x:'完了'};
+const RKL={r:'赤',y:'黄',g:'緑',t:'タスク',x:'完了',xt:'完了'};
+const rkDone=s=>s==='x'||s==='xt';
+function rkIso(d){const m=String(d||'').match(/^(\d{1,2})\/(\d{1,2})$/);if(!m)return '';let y=+TODAY.slice(0,4);const mm=+m[1];if(mm-(+TODAY.slice(5,7))<-2)y++;return `${y}-${String(mm).padStart(2,'0')}-${m[2].padStart(2,'0')}`}
 const shTag=sh=>IS_PUB?'':`<span class="nw">${sh?'顧問に共有':'部内のみ'}</span>`;
 function rkHTML(p){
   const items=RK[p.id]||[];
   if(!items.length&&!canWrite)return '';
   if(canWrite&&rkEdit&&rkEdit.pid===p.id){
-    const rows=rkEdit.items.map((r,i)=>`<div class="rr"><div class="rr1"><select class="di" data-rf="s" data-i="${i}" aria-label="状態"><option value="r"${r.s==='r'?' selected':''}>赤</option><option value="y"${r.s==='y'?' selected':''}>黄</option><option value="g"${r.s==='g'?' selected':''}>緑</option><option value="x"${r.s==='x'?' selected':''}>完了</option></select><input class="di" type="text" maxlength="14" value="${esc(r.o)}" placeholder="担当" data-rf="o" data-i="${i}" aria-label="担当"><span class="rdw"><input class="di" type="text" maxlength="14" value="${esc(r.d)}" placeholder="期限" data-rf="d" data-i="${i}" aria-label="期限"><button class="bt" type="button" data-ract="cal" data-i="${i}" aria-label="カレンダーから選ぶ" title="カレンダーから選ぶ">📅</button><input type="date" data-rcal="${i}" tabindex="-1" aria-hidden="true"></span><span class="ac" style="margin:0;flex-wrap:nowrap"><button class="bt${r.s==='x'?'':' pr'}" type="button" data-ract="done" data-i="${i}" style="--c:var(--rk-g)">${r.s==='x'?'完了を戻す':'完了'}</button><button class="bt dg" type="button" data-ract="rm" data-i="${i}">削除</button></span></div><input class="di" type="text" maxlength="120" value="${esc(r.t)}" placeholder="課題" data-rf="t" data-i="${i}" aria-label="課題"><input class="di" type="text" maxlength="160" value="${esc(r.a)}" placeholder="対策案" data-rf="a" data-i="${i}" aria-label="対策案"></div>`).join('');
-    return `<div class="rk"><h4>課題・リスク</h4>${rows}<div class="ac"><button class="bt" type="button" data-ract="add">＋課題を追加</button></div><div class="ac"><button class="bt pr" type="button" data-ract="save">保存</button><button class="bt" type="button" data-ract="cancel">キャンセル</button></div></div>`;
+    const rows=rkEdit.items.map((r,i)=>`<div class="rr"><div class="rr1"><select class="di" data-rf="s" data-i="${i}" aria-label="状態"><option value="r"${r.s==='r'?' selected':''}>赤</option><option value="y"${r.s==='y'?' selected':''}>黄</option><option value="g"${r.s==='g'?' selected':''}>緑</option><option value="t"${r.s==='t'?' selected':''}>タスク</option><option value="x"${rkDone(r.s)?' selected':''}>完了</option></select><input class="di" type="text" maxlength="14" value="${esc(r.o)}" placeholder="担当" data-rf="o" data-i="${i}" aria-label="担当"><span class="rdw"><input class="di" type="text" maxlength="14" value="${esc(r.d)}" placeholder="期限" data-rf="d" data-i="${i}" aria-label="期限"><span class="calw" title="カレンダーから選ぶ">📅<input type="date" data-rcal="${i}" value="${rkIso(r.d)}" aria-label="カレンダーから選ぶ"></span></span><span class="ac" style="margin:0;flex-wrap:nowrap"><button class="bt${rkDone(r.s)?'':' pr'}" type="button" data-ract="done" data-i="${i}" style="--c:var(--rk-g)">${rkDone(r.s)?'完了を戻す':'完了'}</button><button class="bt dg" type="button" data-ract="rm" data-i="${i}">削除</button></span></div><input class="di" type="text" maxlength="120" value="${esc(r.t)}" placeholder="課題・タスク" data-rf="t" data-i="${i}" aria-label="課題"><input class="di" type="text" maxlength="160" value="${esc(r.a)}" placeholder="対策案・メモ" data-rf="a" data-i="${i}" aria-label="対策案・メモ"></div>`).join('');
+    return `<div class="rk"><h4>課題・リスク・タスク</h4>${rows}<div class="ac"><button class="bt" type="button" data-ract="add">＋課題・タスクを追加</button></div><div class="ac"><button class="bt pr" type="button" data-ract="save">保存</button><button class="bt" type="button" data-ract="cancel">キャンセル</button></div></div>`;
   }
-  const list=items.length?`<ul>${[...items].sort((a,b)=>(a.s==='x')-(b.s==='x')).map(r=>`<li class="${r.s==='x'?'dn':''}"><span class="sg ${esc(r.s)}">${RKL[r.s]||''}</span><div class="rt"><b>${esc(r.t)}</b>${r.a?`<span>対策案: ${esc(r.a)}</span>`:''}<span>担当 ${esc(r.o||'未定')} ／ 期限 ${esc(r.d||'未定')}</span></div></li>`).join('')}</ul>`:'';
-  return `<div class="rk"><h4>課題・リスク</h4>${list}${canWrite?`<div class="ac"><button class="bt" type="button" data-ract="edit">${items.length?'課題・リスクを編集':'＋課題・リスクを追加'}</button></div>`:''}</div>`;
+  const list=items.length?`<ul>${[...items].sort((a,b)=>(rkDone(a.s)?1:0)-(rkDone(b.s)?1:0)).map(r=>`<li class="${rkDone(r.s)?'dn':''}"><span class="sg ${esc(r.s)}">${RKL[r.s]||''}</span><div class="rt"><b>${esc(r.t)}</b>${r.a?`<span>対策案: ${esc(r.a)}</span>`:''}<span>担当 ${esc(r.o||'未定')} ／ 期限 ${esc(r.d||'未定')}</span></div></li>`).join('')}</ul>`:'';
+  return `<div class="rk"><h4>課題・リスク・タスク</h4>${list}${canWrite?`<div class="ac"><button class="bt" type="button" data-ract="edit">${items.length?'課題・タスクを編集':'＋課題・タスクを追加'}</button></div>`:''}</div>`;
 }
 function flHTML(p){
   const items=FL[p.id]||[];
@@ -822,9 +832,11 @@ function flHTML(p){
   }
   return `<div class="fb"><h4>資料・リンク</h4>${ol}${il}${form}</div>`;
 }
+let doneBoxOpen=false,delBoxOpen=false;
+const openIdsHasDone=dn=>dn.some(x=>/data-id="([^"]+)"/.test(x.h)&&openSet.has(RegExp.$1));
 function cardsHTML(){
   const C0=showAll?'0000-00-00':cutoffCard();
-  return P.filter(p=>!isDel(p)&&(filter==='all'||p.cat===filter)).map(eff).map(p=>{
+  const cardsArr=P.filter(p=>!isDel(p)&&(filter==='all'||p.cat===filter)).map(eff).map(p=>{
     const vb=p.bars.filter(b=>b.to>=C0),vm=p.ms.filter(m=>m.d>=C0);const sched=(vb.length||vm.length)?`<div class="sched"><h4>タイムラインの日程</h4>`+
       vb.map(b=>`<div class="sr ${b.chg?'chg':''} ${b.to<TODAY?'past':''}"><span class="sl">${esc(b.l)}</span><span class="sd"><input class="di" type="date" ${dis()} value="${b.from}" data-t="b" data-k="${b.k}" data-f="from" aria-label="${esc(b.l)} 開始日"> 〜 <input class="di" type="date" ${dis()} value="${b.to}" data-t="b" data-k="${b.k}" data-f="to" aria-label="${esc(b.l)} 終了日">${rs(b.k,b.chg)}</span></div>`).join('')+
       vm.map(m=>`<div class="sr ${m.chg?'chg':''} ${m.d<TODAY?'past':''}"><span class="sl">◆ ${esc(m.l)}</span><span class="sd"><input class="di" type="date" ${dis()} value="${m.d}" data-t="m" data-k="${m.k}" data-f="d" aria-label="${esc(m.l)} の日付">${rs(m.k,m.chg)}</span></div>`).join('')+`</div>`:'';
@@ -854,9 +866,14 @@ function cardsHTML(){
       ?`<div class="addbox"><input class="di" id="ad-d" type="date" value="${adDraft.d}" aria-label="追加する経緯の日付"><select class="di" id="ad-kind" style="width:auto" aria-label="種類"><option value="ev"${adDraft.kind==='act'?'':' selected'}>経緯</option><option value="act"${adDraft.kind==='act'?' selected':''}>次のアクション（期限）</option></select><textarea class="ta" id="ad-t" rows="3" maxlength="400" placeholder="内容">${esc(adDraft.t)}</textarea><div class="ac"><button class="bt pr" type="button" data-act="addsave" data-p="${p.id}">追加</button><button class="bt" type="button" data-act="addcancel">キャンセル</button></div></div>`
       :`<div class="addbox"><button class="bt" type="button" data-act="add" data-p="${p.id}">＋経緯・次のアクションを追加</button></div>`);
     const delBox=canWrite&&p.delEv.length?`<details class="delbox"><summary>削除した経緯（${p.delEv.length}）</summary><ul style="list-style:none;padding:0;margin:0">${p.delEv.map(e=>`<li><span>${fmt(e.d)} ${esc(e.t)}</span><button class="bt" type="button" data-act="undel" data-k="${e.k}">戻す</button></li>`).join('')}</ul></details>`:'';
-    return `<details class="card ${p.done?'done':''}" data-id="${p.id}" ${openSet.has(p.id)?'open':''} style="--c:var(--c-${p.cat})"><summary><span class="tag">${CATS[p.cat]}</span><span class="t"><strong>${esc(p.name)}${p.done?`<span class="nw">完了</span>`:''}</strong><span>担当 ${esc(p.own)}</span></span><p class="st">${p.status}</p></summary><div class="cb"><div class="cb1">${wkHTML(p)}${rkHTML(p)}${flHTML(p)}${ownBox}${sched}</div><div class="cb2"><ol class="ev">${hid?`<li style="display:block;color:var(--muted)">以前の経緯${hid}件は非表示です。上の「全期間を表示」で確認できます。</li>`:''}${items}</ol>${addBox}${delBox}</div></div></details>`;
-  }).join('')+(()=>{if(!canWrite)return '';const dl=P.filter(isDel);if(!dl.length)return '';
-    return `<details class="delbox" style="grid-column:1/-1"><summary>削除したプロジェクト（${dl.length}）</summary><ul style="list-style:none;padding:0;margin:0">${dl.map(p=>`<li><span>${esc((OV[kNm(p)]||{}).name||p.name)}</span><button class="bt" type="button" data-pact="undel" data-pid="${p.id}">戻す</button></li>`).join('')}</ul></details>`})();
+    return {done:!!p.done,h:`<details class="card ${p.done?'done':''}" data-id="${p.id}" ${openSet.has(p.id)?'open':''} style="--c:var(--c-${p.cat})"><summary><span class="tag">${CATS[p.cat]}</span><span class="t"><strong>${esc(p.name)}${p.done?`<span class="nw">完了</span>`:''}</strong><span>担当 ${esc(p.own)}</span></span><p class="st">${p.status}</p></summary><div class="cb"><div class="cb1">${wkHTML(p)}${rkHTML(p)}${flHTML(p)}${ownBox}${sched}</div><div class="cb2"><ol class="ev">${hid?`<li style="display:block;color:var(--muted)">以前の経緯${hid}件は非表示です。上の「全期間を表示」で確認できます。</li>`:''}${items}</ol>${addBox}${delBox}</div></div></details>`};
+  });
+  const act=cardsArr.filter(x=>!x.done),dn=cardsArr.filter(x=>x.done);
+  const dl=canWrite?P.filter(isDel):[];
+  const boxDone=!dn.length?'':`<details class="delbox pastd donebox" style="grid-column:1/-1" ${(doneBoxOpen||openIdsHasDone(dn))?'open':''}><summary>完了したプロジェクト（${dn.length}）</summary><div class="cards" style="margin:4px 0 10px">${dn.map(x=>x.h).join('')}</div></details>`;
+  const boxDel=!dl.length?'':`<details class="delbox pastd delprojbox" style="grid-column:1/-1" ${delBoxOpen?'open':''}><summary>削除したプロジェクト（${dl.length}）</summary><ul style="list-style:none;padding:0;margin:0">${dl.map(p=>`<li><span>${esc((OV[kNm(p)]||{}).name||p.name)}</span><button class="bt" type="button" data-pact="undel" data-pid="${p.id}">戻す</button></li>`).join('')}</ul></details>`;
+  const box=boxDone+boxDel;
+  return act.map(x=>x.h).join('')+box;
 }
 function render(){setRange();$('#gantt').innerHTML=ganttHTML();$('#gantt').style.setProperty('--n',NM);$('#cards').innerHTML=cardsHTML();
   document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.id==='allbtn'?showAll:c.dataset.k===filter));}
@@ -955,7 +972,7 @@ function onRact(b){
     const m=String(r.d||'').match(/^(\d{1,2})\/(\d{1,2})$/);let v=TODAY;
     if(m){const mm=+m[1];let y=+TODAY.slice(0,4);if(mm-(+TODAY.slice(5,7))<-2)y++;v=`${y}-${String(mm).padStart(2,'0')}-${m[2].padStart(2,'0')}`}
     h.value=v;try{h.showPicker()}catch(e){h.focus();h.click()}return}
-  if(act==='done'){const r=rkEdit.items[+b.dataset.i];if(r){if(r.s==='x'){r.s=r.ps&&r.ps!=='x'?r.ps:'y'}else{r.ps=r.s;r.s='x'}}render();return}
+  if(act==='done'){const r=rkEdit.items[+b.dataset.i];if(r){if(rkDone(r.s)){r.s=(r.ps&&!rkDone(r.ps))?r.ps:(r.s==='xt'?'t':'y')}else{r.ps=r.s;r.s=(r.s==='t')?'xt':'x'}}render();return}
   if(act==='rm'){rkEdit.items.splice(+b.dataset.i,1);render();return}
   if(act==='cancel'){rkEdit=null;render();return}
   if(act==='save'){const items=rkEdit.items.filter(r=>r.t.trim()).map(r=>({s:r.s,t:r.t.trim().slice(0,120),a:r.a.trim().slice(0,160),o:r.o.trim().slice(0,14),d:r.d.trim().slice(0,14),sh:1}));rkEdit=null;saveRk(pid,items);return}
@@ -1028,7 +1045,7 @@ $('#cards').addEventListener('change',async e=>{const i=e.target.closest('input[
     saveFl(pid,[...(FL[pid]||[]),{id:uid(),k,ti:f.name.slice(0,80),u:r.url,aid:r.id,ds:'',sh:1}]);setSync('アップロードしました。');
   }catch(err){setSync('アップロードできませんでした。権限とファイルの種類を確認してください。')}
   setTimeout(()=>setSync(syncMsg),4000)});
-$('#cards').addEventListener('toggle',e=>{const pd=e.target;if(pd.dataset&&pd.dataset.pid){pd.open?pastOpen.add(pd.dataset.pid):pastOpen.delete(pd.dataset.pid);return}const c=e.target;if(c.dataset&&c.dataset.id){c.open?openSet.add(c.dataset.id):openSet.delete(c.dataset.id)}},true);
+$('#cards').addEventListener('toggle',e=>{const pd=e.target;if(pd.classList&&pd.classList.contains('donebox')){doneBoxOpen=pd.open;return}if(pd.classList&&pd.classList.contains('delprojbox')){delBoxOpen=pd.open;return}if(pd.dataset&&pd.dataset.pid){pd.open?pastOpen.add(pd.dataset.pid):pastOpen.delete(pd.dataset.pid);return}const c=e.target;if(c.dataset&&c.dataset.id){c.open?openSet.add(c.dataset.id):openSet.delete(c.dataset.id)}},true);
 $('#chips').innerHTML=[['all','すべて']].concat(Object.entries(CATS)).map(([k,v])=>`<button class="chip" data-k="${k}" ${k==='all'?'':`style="--c:var(--c-${k})"`}>${k==='all'?'':'<i></i>'}${v}</button>`).join('');
 $('#chips').insertAdjacentHTML('beforeend','<button class="chip" id="allbtn" type="button" style="margin-left:8px">全期間を表示</button>');
 $('#chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;if(b.id==='allbtn')showAll=!showAll;else filter=b.dataset.k;render();});
@@ -1054,6 +1071,13 @@ setSync('日程の変更を確認中です。');
   addRef.onSnapshot(snap=>{AD=snap.exists?Object.fromEntries(Object.entries(snap.data()||{}).filter(([,v])=>v)):{};render()},()=>{});
   ovRef.onSnapshot(snap=>{clearTimeout(timer);OV=snap.exists?Object.fromEntries(Object.entries(snap.data()||{}).filter(([,v])=>v)):{};render()},
     err=>{clearTimeout(timer);setSync('日程の変更を読み込めませんでした。表示は初期の日程です。')});
+})();
+(function(){
+  var KEY='pjtl-fs',M={s:'100%',m:'112.5%',l:'125%'},v='m';
+  try{var t=localStorage.getItem(KEY);if(M[t])v=t}catch(e){}
+  function ap(){document.documentElement.style.fontSize=M[v];document.querySelectorAll('.fsz button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.fs===v)})}
+  var g=document.querySelector('.fsz');
+  if(g){g.addEventListener('click',function(e){var b=e.target.closest('button[data-fs]');if(!b)return;v=b.dataset.fs;try{localStorage.setItem(KEY,v)}catch(e2){}ap()});ap()}
 })();
 </script>
 
