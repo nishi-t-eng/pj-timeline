@@ -1190,7 +1190,7 @@ setSync('日程の変更を確認中です。');
   let can=null;try{can=user?await user.can('data.write'):null}catch(e){}
   canWrite=can!==false;
   ovRef=db.doc('timeline/overrides');addRef=db.doc('timeline/added');
-  syncMsg=canWrite?'「部の目標と打ち手」は右の「編集」で直せます。各カードで、日程の変更、プロジェクト名・担当者の変更、経緯の追加・編集・削除、今週の進捗と次のアクションの編集、課題・リスクと資料・リンクの追加、プロジェクトの完了・削除ができます。変更は全員に共有されます。':'公開用の閲覧専用ページです。内容は2026年11月22日時点のものです。';
+  syncMsg=canWrite?'「部の目標と打ち手」は右の「編集」で直せます。各カードで、日程の変更、プロジェクト名・担当者の変更、経緯の追加・編集・削除、今週の進捗と次のアクションの編集、課題・リスクと資料・リンクの追加、プロジェクトの完了・削除ができます。変更は全員に共有されます。':'公開用の閲覧専用ページです。内容は2026年11月23日時点のものです。';
   setSync(syncMsg);
   rkRef=db.doc('timeline/risks');flRef=db.doc('timeline/files');
   rkRef.onSnapshot(snap=>{RK=snap.exists?(snap.data()||{}):{};render()},()=>{});
